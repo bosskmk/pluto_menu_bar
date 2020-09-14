@@ -1,9 +1,29 @@
 part of '../pluto_menu_bar.dart';
 
 class PlutoMenuBar extends StatefulWidget {
+  /// Pass [MenuItem] to List.
+  /// create submenus by continuing to pass MenuItem to children as a List.
+  ///
+  /// ```dart
+  /// MenuItem(
+  ///   title: 'Menu 1',
+  ///   children: [
+  ///     MenuItem(
+  ///       title: 'Menu 1-1',
+  ///       onTab: () => print('Menu 1-1 tap'),
+  ///     ),
+  ///   ],
+  /// ),
+  /// ```
   final List<MenuItem> menus;
 
-  PlutoMenuBar({this.menus});
+  /// Text of the back button. (default. 'Go back')
+  final String goBackButtonText;
+
+  PlutoMenuBar({
+    this.menus,
+    this.goBackButtonText = 'Go back',
+  });
 
   @override
   _PlutoMenuBarState createState() => _PlutoMenuBarState();
@@ -24,15 +44,9 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.white,
-                Colors.white,
-                Colors.white,
-                Colors.white,
-                Colors.white,
-                Colors.white,
-                Colors.white,
-                Colors.white,
                 Colors.white54,
               ],
+              stops: [0.90, 1],
             ),
             border: Border(
               top: BorderSide(color: Colors.black12),
@@ -51,7 +65,10 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
             scrollDirection: Axis.horizontal,
             itemCount: widget.menus.length,
             itemBuilder: (_, index) {
-              return MenuWidget(widget.menus[index]);
+              return _MenuWidget(
+                widget.menus[index],
+                goBackButtonText: widget.goBackButtonText,
+              );
             },
           ),
         );
@@ -61,40 +78,87 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
 }
 
 class MenuItem {
+  /// Menu title
   final String title;
+
+  /// Callback executed when a menu is tapped
   final Function() onTab;
+
+  /// Passing [MenuItem] to a [List] creates a sub-menu.
   final List<MenuItem> children;
 
   MenuItem({
     this.title,
     this.onTab,
     this.children,
-  });
+  }) : _key = GlobalKey();
 
-  bool get hasChildren => children != null && children.length > 0;
+  MenuItem._back({
+    this.title,
+    this.onTab,
+    this.children,
+  })  : _key = GlobalKey(),
+        _isBack = true;
+
+  GlobalKey _key;
+
+  bool _isBack = false;
+
+  Offset get _position {
+    RenderBox box = _key.currentContext.findRenderObject();
+
+    return box.localToGlobal(Offset.zero);
+  }
+
+  bool get _hasChildren => children != null && children.length > 0;
 }
 
-class MenuWidget extends StatelessWidget {
+class _MenuWidget extends StatelessWidget {
   final MenuItem menu;
 
-  MenuWidget(this.menu);
+  final String goBackButtonText;
+
+  _MenuWidget(
+    this.menu, {
+    this.goBackButtonText,
+  }) : super(key: menu._key);
+
+  Widget _buildPopupItem(MenuItem _menu) {
+    return _menu._hasChildren && !_menu._isBack
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(_menu.title),
+              Icon(
+                Icons.arrow_right,
+                color: Colors.black54,
+              ),
+            ],
+          )
+        : Text(_menu.title);
+  }
 
   Future<MenuItem> _showPopupMenu(
     BuildContext context,
     List<MenuItem> menuItems,
   ) async {
+    final RenderBox overlay = Overlay.of(context).context.findRenderObject();
+
+    final Offset position = menu._position + Offset(0, 34);
+
     return await showMenu(
       context: context,
-      position: RelativeRect.fromLTRB(0, 0, 0, 0),
-      items: [
-        ...menuItems.map((menu) {
-          return PopupMenuItem<MenuItem>(
-            value: menu,
-            child: Text(menu.title),
-          );
-        }).toList(),
-      ],
-      elevation: 8.0,
+      position: RelativeRect.fromRect(
+        position & Size(40, 40),
+        Offset.zero & overlay.size,
+      ),
+      items: menuItems.map((menu) {
+        return PopupMenuItem<MenuItem>(
+          value: menu,
+          child: _buildPopupItem(menu),
+        );
+      }).toList(),
+      elevation: 2.0,
     );
   }
 
@@ -102,30 +166,68 @@ class MenuWidget extends StatelessWidget {
     BuildContext context,
     MenuItem menu,
   ) {
-    Future<MenuItem> _getSelectedMenu(MenuItem menu) async {
-      if (menu.hasChildren) {
-        var selectedMenu = await _showPopupMenu(
-          context,
-          menu.children,
-        );
-
-        if (selectedMenu == null) {
-          return menu;
-        }
-
-        if (selectedMenu.hasChildren) {
-          selectedMenu = await _getSelectedMenu(selectedMenu);
-        }
-
-        return selectedMenu;
+    Future<MenuItem> _getSelectedMenu(
+      MenuItem menu, {
+      MenuItem previousMenu,
+      int stackIdx,
+      List<MenuItem> stack,
+    }) async {
+      if (!menu._hasChildren) {
+        return menu;
       }
 
-      return menu;
+      final items = [...menu.children];
+
+      if (previousMenu != null) {
+        items.add(MenuItem._back(
+          title: goBackButtonText,
+          children: previousMenu.children,
+        ));
+      }
+
+      MenuItem _selectedMenu = await _showPopupMenu(
+        context,
+        items,
+      );
+
+      if (_selectedMenu == null) {
+        return null;
+      }
+
+      MenuItem _previousMenu = menu;
+
+      if (!_selectedMenu._hasChildren) {
+        return _selectedMenu;
+      }
+
+      if (_selectedMenu._isBack) {
+        --stackIdx;
+        if (stackIdx < 0) {
+          _previousMenu = null;
+        } else {
+          _previousMenu = stack[stackIdx];
+        }
+      } else {
+        if (stackIdx == null) {
+          stackIdx = 0;
+          stack = [menu];
+        } else {
+          stackIdx += 1;
+          stack.add(menu);
+        }
+      }
+
+      return await _getSelectedMenu(
+        _selectedMenu,
+        previousMenu: _previousMenu,
+        stackIdx: stackIdx,
+        stack: stack,
+      );
     }
 
     return InkWell(
       onTap: () async {
-        if (menu.hasChildren) {
+        if (menu._hasChildren) {
           MenuItem selectedMenu = await _getSelectedMenu(menu);
 
           if (selectedMenu?.onTab != null) {
@@ -135,7 +237,7 @@ class MenuWidget extends StatelessWidget {
           menu.onTab();
         }
       },
-      child: MenuTitleWidget(menu.title),
+      child: _MenuTitleWidget(menu.title),
     );
   }
 
@@ -145,10 +247,10 @@ class MenuWidget extends StatelessWidget {
   }
 }
 
-class MenuTitleWidget extends StatelessWidget {
+class _MenuTitleWidget extends StatelessWidget {
   final String title;
 
-  MenuTitleWidget(this.title);
+  _MenuTitleWidget(this.title);
 
   @override
   Widget build(BuildContext context) {

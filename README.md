@@ -1,14 +1,135 @@
-# pluto_menu_bar
+## PlutoMenuBar for flutter - v0.1.0
 
-A menu bar for flutter.
+PlutoMenuBar is a horizontal menu bar for flutter.
 
-## Getting Started
+### Features
+- Multiple sub-menu : Add as many submenus as you like.
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+### Demo
+[Demo Web](https://bosskmk.github.io/pluto_menu_bar/build/web/index.html)
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+### Installation
+[pub.dev](https://pub.dev/packages/pluto_menu_bar)
+
+### Screenshots
+
+![PlutoMenuBar Image](https://bosskmk.github.io/images/pluto_menu_bar_img1.gif)
+
+### Usage
+```dart
+import 'package:flutter/material.dart';
+import 'package:pluto_menu_bar/pluto_menu_bar.dart';
+
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  final _scaffoldKey = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        key: _scaffoldKey,
+        appBar: AppBar(
+          title: Text('PlutoMenuBar'),
+        ),
+        body: PlutoMenuBarDemo(scaffoldKey: _scaffoldKey),
+      ),
+    );
+  }
+}
+
+class PlutoMenuBarDemo extends StatelessWidget {
+  final scaffoldKey;
+
+  PlutoMenuBarDemo({
+    this.scaffoldKey,
+  });
+
+  void message(context, String text) {
+    scaffoldKey.currentState.hideCurrentSnackBar();
+
+    final snackBar = SnackBar(
+      content: Text(text),
+    );
+
+    Scaffold.of(context).showSnackBar(snackBar);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: [
+          SizedBox(
+            height: 30,
+          ),
+          PlutoMenuBar(
+            menus: [
+              MenuItem(
+                title: 'Menu 1',
+                children: [
+                  MenuItem(
+                    title: 'Menu 1-1',
+                    onTab: () => message(context, 'Menu 1-1 tap'),
+                    children: [
+                      MenuItem(
+                        title: 'Menu 1-1-1',
+                        onTab: () => message(context, 'Menu 1-1-1 tap'),
+                        children: [
+                          MenuItem(
+                            title: 'Menu 1-1-1-1',
+                            onTab: () => message(context, 'Menu 1-1-1-1 tap'),
+                          ),
+                          MenuItem(
+                            title: 'Menu 1-1-1-2',
+                            onTab: () => message(context, 'Menu 1-1-1-2 tap'),
+                          ),
+                        ],
+                      ),
+                      MenuItem(
+                        title: 'Menu 1-1-2',
+                        onTab: () => message(context, 'Menu 1-1-2 tap'),
+                      ),
+                    ],
+                  ),
+                  MenuItem(
+                    title: 'Menu 1-2',
+                    onTab: () => message(context, 'Menu 1-2 tap'),
+                  ),
+                ],
+              ),
+              MenuItem(
+                title: 'Menu 2',
+                children: [
+                  MenuItem(
+                    title: 'Menu 2-1',
+                    onTab: () => message(context, 'Menu 2-1 tap'),
+                  ),
+                ],
+              ),
+              MenuItem(
+                title: 'Menu 3',
+                onTab: () => message(context, 'Menu 3 tap'),
+              ),
+              MenuItem(
+                title: 'Menu 4',
+                onTab: () => message(context, 'Menu 4 tap'),
+              ),
+              MenuItem(
+                title: 'Menu 5',
+                onTab: () => message(context, 'Menu 5 tap'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Coming soon
+* Add theme
