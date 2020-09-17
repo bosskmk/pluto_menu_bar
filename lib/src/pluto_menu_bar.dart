@@ -20,9 +20,33 @@ class PlutoMenuBar extends StatefulWidget {
   /// Text of the back button. (default. 'Go back')
   final String goBackButtonText;
 
+  /// menu height. (default. '45')
+  final double height;
+
+  /// BackgroundColor. (default. 'white')
+  final Color backgroundColor;
+
+  /// Border color. (default. 'black12')
+  final Color borderColor;
+
+  /// more icon color. (default. 'black54')
+  final Color moreIconColor;
+
+  /// Enable gradient of BackgroundColor. (default. 'true')
+  final bool gradient;
+
+  /// [TextStyle] of Menu title.
+  final TextStyle textStyle;
+
   PlutoMenuBar({
     this.menus,
     this.goBackButtonText = 'Go back',
+    this.height = 45,
+    this.backgroundColor = Colors.white,
+    this.borderColor = Colors.black12,
+    this.moreIconColor = Colors.black54,
+    this.gradient = true,
+    this.textStyle = const TextStyle(),
   });
 
   @override
@@ -36,21 +60,24 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
       builder: (ctx, size) {
         return Container(
           width: size.maxWidth,
-          height: 45,
+          height: widget.height,
           padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white,
-                Colors.white54,
-              ],
-              stops: [0.90, 1],
-            ),
+            color: widget.gradient ? null : widget.backgroundColor,
+            gradient: widget.gradient
+                ? LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      widget.backgroundColor,
+                      widget.backgroundColor.withOpacity(0.54),
+                    ],
+                    stops: [0.90, 1],
+                  )
+                : null,
             border: Border(
-              top: BorderSide(color: Colors.black12),
-              bottom: BorderSide(color: Colors.black12),
+              top: BorderSide(color: widget.borderColor),
+              bottom: BorderSide(color: widget.borderColor),
             ),
             boxShadow: [
               BoxShadow(
@@ -68,6 +95,10 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
               return _MenuWidget(
                 widget.menus[index],
                 goBackButtonText: widget.goBackButtonText,
+                height: widget.height,
+                backgroundColor: widget.backgroundColor,
+                moreIconColor: widget.moreIconColor,
+                textStyle: widget.textStyle,
               );
             },
           ),
@@ -118,9 +149,21 @@ class _MenuWidget extends StatelessWidget {
 
   final String goBackButtonText;
 
+  final double height;
+
+  final Color backgroundColor;
+
+  final Color moreIconColor;
+
+  final TextStyle textStyle;
+
   _MenuWidget(
     this.menu, {
     this.goBackButtonText,
+    this.height,
+    this.backgroundColor,
+    this.moreIconColor,
+    this.textStyle,
   }) : super(key: menu._key);
 
   Widget _buildPopupItem(MenuItem _menu) {
@@ -128,14 +171,20 @@ class _MenuWidget extends StatelessWidget {
         ? Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(_menu.title),
+              Text(
+                _menu.title,
+                style: textStyle,
+              ),
               Icon(
                 Icons.arrow_right,
-                color: Colors.black54,
+                color: moreIconColor,
               ),
             ],
           )
-        : Text(_menu.title);
+        : Text(
+            _menu.title,
+            style: textStyle,
+          );
   }
 
   Future<MenuItem> _showPopupMenu(
@@ -144,7 +193,7 @@ class _MenuWidget extends StatelessWidget {
   ) async {
     final RenderBox overlay = Overlay.of(context).context.findRenderObject();
 
-    final Offset position = menu._position + Offset(0, 34);
+    final Offset position = menu._position + Offset(0, height - 11);
 
     return await showMenu(
       context: context,
@@ -159,6 +208,7 @@ class _MenuWidget extends StatelessWidget {
         );
       }).toList(),
       elevation: 2.0,
+      color: backgroundColor,
     );
   }
 
@@ -237,7 +287,10 @@ class _MenuWidget extends StatelessWidget {
           menu.onTab();
         }
       },
-      child: _MenuTitleWidget(menu.title),
+      child: _MenuTitleWidget(
+        title: menu.title,
+        textStyle: textStyle,
+      ),
     );
   }
 
@@ -250,7 +303,12 @@ class _MenuWidget extends StatelessWidget {
 class _MenuTitleWidget extends StatelessWidget {
   final String title;
 
-  _MenuTitleWidget(this.title);
+  final TextStyle textStyle;
+
+  _MenuTitleWidget({
+    this.title,
+    this.textStyle,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -258,7 +316,10 @@ class _MenuTitleWidget extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Align(
         alignment: Alignment.center,
-        child: Text(title),
+        child: Text(
+          title,
+          style: textStyle,
+        ),
       ),
     );
   }

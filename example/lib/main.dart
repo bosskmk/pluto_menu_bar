@@ -39,6 +39,65 @@ class PlutoMenuBarDemo extends StatelessWidget {
     Scaffold.of(context).showSnackBar(snackBar);
   }
 
+  List<MenuItem> getMenus(BuildContext context) {
+    return [
+      MenuItem(
+        title: 'Menu 1',
+        children: [
+          MenuItem(
+            title: 'Menu 1-1',
+            onTab: () => message(context, 'Menu 1-1 tap'),
+            children: [
+              MenuItem(
+                title: 'Menu 1-1-1',
+                onTab: () => message(context, 'Menu 1-1-1 tap'),
+                children: [
+                  MenuItem(
+                    title: 'Menu 1-1-1-1',
+                    onTab: () => message(context, 'Menu 1-1-1-1 tap'),
+                  ),
+                  MenuItem(
+                    title: 'Menu 1-1-1-2',
+                    onTab: () => message(context, 'Menu 1-1-1-2 tap'),
+                  ),
+                ],
+              ),
+              MenuItem(
+                title: 'Menu 1-1-2',
+                onTab: () => message(context, 'Menu 1-1-2 tap'),
+              ),
+            ],
+          ),
+          MenuItem(
+            title: 'Menu 1-2',
+            onTab: () => message(context, 'Menu 1-2 tap'),
+          ),
+        ],
+      ),
+      MenuItem(
+        title: 'Menu 2',
+        children: [
+          MenuItem(
+            title: 'Menu 2-1',
+            onTab: () => message(context, 'Menu 2-1 tap'),
+          ),
+        ],
+      ),
+      MenuItem(
+        title: 'Menu 3',
+        onTab: () => message(context, 'Menu 3 tap'),
+      ),
+      MenuItem(
+        title: 'Menu 4',
+        onTab: () => message(context, 'Menu 4 tap'),
+      ),
+      MenuItem(
+        title: 'Menu 5',
+        onTab: () => message(context, 'Menu 5 tap'),
+      ),
+    ];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -48,62 +107,38 @@ class PlutoMenuBarDemo extends StatelessWidget {
             height: 30,
           ),
           PlutoMenuBar(
-            menus: [
-              MenuItem(
-                title: 'Menu 1',
-                children: [
-                  MenuItem(
-                    title: 'Menu 1-1',
-                    onTab: () => message(context, 'Menu 1-1 tap'),
-                    children: [
-                      MenuItem(
-                        title: 'Menu 1-1-1',
-                        onTab: () => message(context, 'Menu 1-1-1 tap'),
-                        children: [
-                          MenuItem(
-                            title: 'Menu 1-1-1-1',
-                            onTab: () => message(context, 'Menu 1-1-1-1 tap'),
-                          ),
-                          MenuItem(
-                            title: 'Menu 1-1-1-2',
-                            onTab: () => message(context, 'Menu 1-1-1-2 tap'),
-                          ),
-                        ],
-                      ),
-                      MenuItem(
-                        title: 'Menu 1-1-2',
-                        onTab: () => message(context, 'Menu 1-1-2 tap'),
-                      ),
-                    ],
-                  ),
-                  MenuItem(
-                    title: 'Menu 1-2',
-                    onTab: () => message(context, 'Menu 1-2 tap'),
-                  ),
-                ],
-              ),
-              MenuItem(
-                title: 'Menu 2',
-                children: [
-                  MenuItem(
-                    title: 'Menu 2-1',
-                    onTab: () => message(context, 'Menu 2-1 tap'),
-                  ),
-                ],
-              ),
-              MenuItem(
-                title: 'Menu 3',
-                onTab: () => message(context, 'Menu 3 tap'),
-              ),
-              MenuItem(
-                title: 'Menu 4',
-                onTab: () => message(context, 'Menu 4 tap'),
-              ),
-              MenuItem(
-                title: 'Menu 5',
-                onTab: () => message(context, 'Menu 5 tap'),
-              ),
-            ],
+            menus: getMenus(context),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          PlutoMenuBar(
+            backgroundColor: Colors.deepOrange,
+            gradient: false,
+            textStyle: TextStyle(color: Colors.white),
+            moreIconColor: Colors.white,
+            menus: getMenus(context),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          PlutoMenuBar(
+            backgroundColor: Colors.orange,
+            textStyle: TextStyle(color: Colors.white, fontSize: 20),
+            height: 55,
+            moreIconColor: Colors.white,
+            menus: getMenus(context),
+          ),
+          SizedBox(
+            height: 30,
+          ),
+          PlutoMenuBar(
+            backgroundColor: Colors.black,
+            gradient: false,
+            textStyle: TextStyle(color: Colors.white, fontSize: 25),
+            height: 65,
+            moreIconColor: Colors.white,
+            menus: getMenus(context),
           ),
         ],
       ),
