@@ -1,3 +1,7 @@
+## [0.1.3] - 2020. 9. 18
+
+* Fix typo. (onTab > onTap) :) Thanks to Schwusch for reporting.
+
 ## [0.1.2] - 2020. 9. 18
 
 * Fix a bug where the location of the sub-menu did not match.

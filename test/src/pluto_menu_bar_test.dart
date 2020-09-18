@@ -57,7 +57,7 @@ void main() {
               menus: [
                 MenuItem(
                   title: 'Menu1',
-                  onTab: () {},
+                  onTap: () {},
                 ),
               ],
             ),
@@ -82,7 +82,7 @@ void main() {
                 MenuItem(
                   title: 'Menu1',
                   children: [
-                    MenuItem(title: 'Menu 1-1', onTab: () {}),
+                    MenuItem(title: 'Menu 1-1', onTap: () {}),
                   ],
                 ),
               ],
@@ -115,7 +115,7 @@ void main() {
               menus: [
                 MenuItem(
                   title: 'Menu1',
-                  onTab: handle.onTab,
+                  onTap: handle.onTap,
                 ),
               ],
             ),
@@ -131,7 +131,7 @@ void main() {
     await tester.pumpAndSettle(const Duration(seconds: 1));
 
     // then
-    verify(handle.onTab()).called(1);
+    verify(handle.onTap()).called(1);
   });
 
   testWidgets('tap sub-menu bar', (WidgetTester tester) async {
@@ -148,8 +148,8 @@ void main() {
                 MenuItem(
                   title: 'Menu1',
                   children: [
-                    MenuItem(title: 'Menu 1-1', onTab: handle1.onTab),
-                    MenuItem(title: 'Menu 1-2', onTab: handle2.onTab),
+                    MenuItem(title: 'Menu 1-1', onTap: handle1.onTap),
+                    MenuItem(title: 'Menu 1-2', onTap: handle2.onTap),
                   ],
                 ),
               ],
@@ -165,15 +165,15 @@ void main() {
 
     await tester.pumpAndSettle(const Duration(seconds: 1));
 
-    verifyNever(handle1.onTab());
-    verifyNever(handle2.onTab());
+    verifyNever(handle1.onTap());
+    verifyNever(handle2.onTap());
 
     Finder menu1_1 = find.text('Menu 1-1');
     await tester.tap(menu1_1);
 
     // then
-    verify(handle1.onTab()).called(1);
-    verifyNever(handle2.onTab());
+    verify(handle1.onTap()).called(1);
+    verifyNever(handle2.onTap());
   });
 
   testWidgets(
@@ -196,7 +196,7 @@ void main() {
                       children: [
                         MenuItem(
                           title: 'Menu 1-1-1',
-                          onTab: handle.onTab,
+                          onTap: handle.onTap,
                         ),
                       ],
                     ),
@@ -250,7 +250,7 @@ void main() {
                       children: [
                         MenuItem(
                           title: 'Menu 1-1-1',
-                          onTab: handle.onTab,
+                          onTap: handle.onTap,
                         ),
                       ],
                     ),
@@ -299,7 +299,7 @@ void main() {
                       children: [
                         MenuItem(
                           title: 'Menu 1-1-1',
-                          onTab: handle.onTab,
+                          onTap: handle.onTap,
                         ),
                       ],
                     ),

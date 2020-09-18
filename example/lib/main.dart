@@ -46,31 +46,31 @@ class PlutoMenuBarDemo extends StatelessWidget {
         children: [
           MenuItem(
             title: 'Menu 1-1',
-            onTab: () => message(context, 'Menu 1-1 tap'),
+            onTap: () => message(context, 'Menu 1-1 tap'),
             children: [
               MenuItem(
                 title: 'Menu 1-1-1',
-                onTab: () => message(context, 'Menu 1-1-1 tap'),
+                onTap: () => message(context, 'Menu 1-1-1 tap'),
                 children: [
                   MenuItem(
                     title: 'Menu 1-1-1-1',
-                    onTab: () => message(context, 'Menu 1-1-1-1 tap'),
+                    onTap: () => message(context, 'Menu 1-1-1-1 tap'),
                   ),
                   MenuItem(
                     title: 'Menu 1-1-1-2',
-                    onTab: () => message(context, 'Menu 1-1-1-2 tap'),
+                    onTap: () => message(context, 'Menu 1-1-1-2 tap'),
                   ),
                 ],
               ),
               MenuItem(
                 title: 'Menu 1-1-2',
-                onTab: () => message(context, 'Menu 1-1-2 tap'),
+                onTap: () => message(context, 'Menu 1-1-2 tap'),
               ),
             ],
           ),
           MenuItem(
             title: 'Menu 1-2',
-            onTab: () => message(context, 'Menu 1-2 tap'),
+            onTap: () => message(context, 'Menu 1-2 tap'),
           ),
         ],
       ),
@@ -79,52 +79,52 @@ class PlutoMenuBarDemo extends StatelessWidget {
         children: [
           MenuItem(
             title: 'Menu 2-1',
-            onTab: () => message(context, 'Menu 2-1 tap'),
+            onTap: () => message(context, 'Menu 2-1 tap'),
           ),
         ],
       ),
       MenuItem(
         title: 'Menu 3',
-        onTab: () => message(context, 'Menu 3 tap'),
+        onTap: () => message(context, 'Menu 3 tap'),
       ),
       MenuItem(
         title: 'Menu 4',
-        onTab: () => message(context, 'Menu 4 tap'),
+        onTap: () => message(context, 'Menu 4 tap'),
       ),
       MenuItem(
         title: 'Menu 5',
-        onTab: () => message(context, 'Menu 5 tap'),
+        onTap: () => message(context, 'Menu 5 tap'),
       ),
       MenuItem(
         title: 'Menu 6',
         children: [
           MenuItem(
             title: 'Menu 6-1',
-            onTab: () => message(context, 'Menu 6-1 tap'),
+            onTap: () => message(context, 'Menu 6-1 tap'),
             children: [
               MenuItem(
                 title: 'Menu 6-1-1',
-                onTab: () => message(context, 'Menu 6-1-1 tap'),
+                onTap: () => message(context, 'Menu 6-1-1 tap'),
                 children: [
                   MenuItem(
                     title: 'Menu 6-1-1-1',
-                    onTab: () => message(context, 'Menu 6-1-1-1 tap'),
+                    onTap: () => message(context, 'Menu 6-1-1-1 tap'),
                   ),
                   MenuItem(
                     title: 'Menu 6-1-1-2',
-                    onTab: () => message(context, 'Menu 6-1-1-2 tap'),
+                    onTap: () => message(context, 'Menu 6-1-1-2 tap'),
                   ),
                 ],
               ),
               MenuItem(
                 title: 'Menu 6-1-2',
-                onTab: () => message(context, 'Menu 6-1-2 tap'),
+                onTap: () => message(context, 'Menu 6-1-2 tap'),
               ),
             ],
           ),
           MenuItem(
             title: 'Menu 6-2',
-            onTab: () => message(context, 'Menu 6-2 tap'),
+            onTap: () => message(context, 'Menu 6-2 tap'),
           ),
         ],
       ),

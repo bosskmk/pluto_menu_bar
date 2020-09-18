@@ -10,7 +10,7 @@ class PlutoMenuBar extends StatefulWidget {
   ///   children: [
   ///     MenuItem(
   ///       title: 'Menu 1-1',
-  ///       onTab: () => print('Menu 1-1 tap'),
+  ///       onTap: () => print('Menu 1-1 tap'),
   ///     ),
   ///   ],
   /// ),
@@ -114,20 +114,20 @@ class MenuItem {
   final String title;
 
   /// Callback executed when a menu is tapped
-  final Function() onTab;
+  final Function() onTap;
 
   /// Passing [MenuItem] to a [List] creates a sub-menu.
   final List<MenuItem> children;
 
   MenuItem({
     this.title,
-    this.onTab,
+    this.onTap,
     this.children,
   }) : _key = GlobalKey();
 
   MenuItem._back({
     this.title,
-    this.onTab,
+    this.onTap,
     this.children,
   })  : _key = GlobalKey(),
         _isBack = true;
@@ -283,11 +283,11 @@ class _MenuWidget extends StatelessWidget {
         if (menu._hasChildren) {
           MenuItem selectedMenu = await _getSelectedMenu(menu);
 
-          if (selectedMenu?.onTab != null) {
-            selectedMenu.onTab();
+          if (selectedMenu?.onTap != null) {
+            selectedMenu.onTap();
           }
-        } else if (menu?.onTab != null) {
-          menu.onTab();
+        } else if (menu?.onTap != null) {
+          menu.onTap();
         }
       },
       child: _MenuTitleWidget(
