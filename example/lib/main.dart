@@ -95,6 +95,39 @@ class PlutoMenuBarDemo extends StatelessWidget {
         title: 'Menu 5',
         onTab: () => message(context, 'Menu 5 tap'),
       ),
+      MenuItem(
+        title: 'Menu 6',
+        children: [
+          MenuItem(
+            title: 'Menu 6-1',
+            onTab: () => message(context, 'Menu 6-1 tap'),
+            children: [
+              MenuItem(
+                title: 'Menu 6-1-1',
+                onTab: () => message(context, 'Menu 6-1-1 tap'),
+                children: [
+                  MenuItem(
+                    title: 'Menu 6-1-1-1',
+                    onTab: () => message(context, 'Menu 6-1-1-1 tap'),
+                  ),
+                  MenuItem(
+                    title: 'Menu 6-1-1-2',
+                    onTab: () => message(context, 'Menu 6-1-1-2 tap'),
+                  ),
+                ],
+              ),
+              MenuItem(
+                title: 'Menu 6-1-2',
+                onTab: () => message(context, 'Menu 6-1-2 tap'),
+              ),
+            ],
+          ),
+          MenuItem(
+            title: 'Menu 6-2',
+            onTab: () => message(context, 'Menu 6-2 tap'),
+          ),
+        ],
+      ),
     ];
   }
 

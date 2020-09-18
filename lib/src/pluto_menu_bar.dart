@@ -47,7 +47,8 @@ class PlutoMenuBar extends StatefulWidget {
     this.moreIconColor = Colors.black54,
     this.gradient = true,
     this.textStyle = const TextStyle(),
-  });
+  })  : assert(menus != null),
+        assert(menus.length > 0);
 
   @override
   _PlutoMenuBarState createState() => _PlutoMenuBarState();
@@ -167,24 +168,24 @@ class _MenuWidget extends StatelessWidget {
   }) : super(key: menu._key);
 
   Widget _buildPopupItem(MenuItem _menu) {
-    return _menu._hasChildren && !_menu._isBack
-        ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _menu.title,
-                style: textStyle,
-              ),
-              Icon(
-                Icons.arrow_right,
-                color: moreIconColor,
-              ),
-            ],
-          )
-        : Text(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Text(
             _menu.title,
             style: textStyle,
-          );
+            maxLines: 1,
+            overflow: TextOverflow.visible,
+          ),
+        ),
+        if (_menu._hasChildren && !_menu._isBack)
+          Icon(
+            Icons.arrow_right,
+            color: moreIconColor,
+          ),
+      ],
+    );
   }
 
   Future<MenuItem> _showPopupMenu(
@@ -197,9 +198,11 @@ class _MenuWidget extends StatelessWidget {
 
     return await showMenu(
       context: context,
-      position: RelativeRect.fromRect(
-        position & Size(40, 40),
-        Offset.zero & overlay.size,
+      position: RelativeRect.fromLTRB(
+        position.dx,
+        position.dy,
+        overlay.size.width,
+        overlay.size.height,
       ),
       items: menuItems.map((menu) {
         return PopupMenuItem<MenuItem>(

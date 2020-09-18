@@ -1,3 +1,7 @@
+## [0.1.2] - 2020. 9. 18
+
+* Fix a bug where the location of the sub-menu did not match.
+
 ## [0.1.1] - 2020. 9. 17
 
 * Change the default style : Change the background, font, and border.
