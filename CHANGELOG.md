@@ -1,3 +1,7 @@
+## [0.1.4] - 2020. 9. 30
+
+* Add a menu icon.
+
 ## [0.1.3] - 2020. 9. 18
 
 * Fix typo. (onTab > onTap) :) Thanks to Schwusch for reporting.

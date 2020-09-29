@@ -29,6 +29,12 @@ class PlutoMenuBar extends StatefulWidget {
   /// Border color. (default. 'black12')
   final Color borderColor;
 
+  /// menu icon color. (default. 'black54')
+  final Color menuIconColor;
+
+  /// menu icon size. (default. '20')
+  final double menuIconSize;
+
   /// more icon color. (default. 'black54')
   final Color moreIconColor;
 
@@ -44,6 +50,8 @@ class PlutoMenuBar extends StatefulWidget {
     this.height = 45,
     this.backgroundColor = Colors.white,
     this.borderColor = Colors.black12,
+    this.menuIconColor = Colors.black54,
+    this.menuIconSize = 20,
     this.moreIconColor = Colors.black54,
     this.gradient = true,
     this.textStyle = const TextStyle(),
@@ -98,6 +106,8 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                 goBackButtonText: widget.goBackButtonText,
                 height: widget.height,
                 backgroundColor: widget.backgroundColor,
+                menuIconColor: widget.menuIconColor,
+                menuIconSize: widget.menuIconSize,
                 moreIconColor: widget.moreIconColor,
                 textStyle: widget.textStyle,
               );
@@ -113,6 +123,8 @@ class MenuItem {
   /// Menu title
   final String title;
 
+  final IconData icon;
+
   /// Callback executed when a menu is tapped
   final Function() onTap;
 
@@ -121,12 +133,14 @@ class MenuItem {
 
   MenuItem({
     this.title,
+    this.icon,
     this.onTap,
     this.children,
   }) : _key = GlobalKey();
 
   MenuItem._back({
     this.title,
+    this.icon,
     this.onTap,
     this.children,
   })  : _key = GlobalKey(),
@@ -154,6 +168,10 @@ class _MenuWidget extends StatelessWidget {
 
   final Color backgroundColor;
 
+  final Color menuIconColor;
+
+  final double menuIconSize;
+
   final Color moreIconColor;
 
   final TextStyle textStyle;
@@ -163,6 +181,8 @@ class _MenuWidget extends StatelessWidget {
     this.goBackButtonText,
     this.height,
     this.backgroundColor,
+    this.menuIconColor,
+    this.menuIconSize,
     this.moreIconColor,
     this.textStyle,
   }) : super(key: menu._key);
@@ -171,12 +191,25 @@ class _MenuWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
+        if (_menu.icon != null) ...[
+          Icon(
+            _menu.icon,
+            color: menuIconColor,
+            size: menuIconSize,
+          ),
+          SizedBox(
+            width: 5,
+          ),
+        ],
         Expanded(
-          child: Text(
-            _menu.title,
-            style: textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.visible,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 3),
+            child: Text(
+              _menu.title,
+              style: textStyle,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+            ),
           ),
         ),
         if (_menu._hasChildren && !_menu._isBack)
@@ -290,9 +323,27 @@ class _MenuWidget extends StatelessWidget {
           menu.onTap();
         }
       },
-      child: _MenuTitleWidget(
-        title: menu.title,
-        textStyle: textStyle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (menu.icon != null) ...[
+              Icon(
+                menu.icon,
+                color: menuIconColor,
+                size: menuIconSize,
+              ),
+              SizedBox(
+                width: 5,
+              ),
+            ],
+            Text(
+              menu.title,
+              style: textStyle,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -300,30 +351,5 @@ class _MenuWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _getMenu(context, menu);
-  }
-}
-
-class _MenuTitleWidget extends StatelessWidget {
-  final String title;
-
-  final TextStyle textStyle;
-
-  _MenuTitleWidget({
-    this.title,
-    this.textStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 15),
-      child: Align(
-        alignment: Alignment.center,
-        child: Text(
-          title,
-          style: textStyle,
-        ),
-      ),
-    );
   }
 }

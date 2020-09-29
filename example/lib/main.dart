@@ -43,9 +43,11 @@ class PlutoMenuBarDemo extends StatelessWidget {
     return [
       MenuItem(
         title: 'Menu 1',
+        icon: Icons.home,
         children: [
           MenuItem(
             title: 'Menu 1-1',
+            icon: Icons.group,
             onTap: () => message(context, 'Menu 1-1 tap'),
             children: [
               MenuItem(
@@ -76,6 +78,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
       ),
       MenuItem(
         title: 'Menu 2',
+        icon: Icons.add_circle,
         children: [
           MenuItem(
             title: 'Menu 2-1',
@@ -85,6 +88,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
       ),
       MenuItem(
         title: 'Menu 3',
+        icon: Icons.apps_outlined,
         onTap: () => message(context, 'Menu 3 tap'),
       ),
       MenuItem(
@@ -157,7 +161,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
           ),
           PlutoMenuBar(
             backgroundColor: Colors.orange,
-            textStyle: TextStyle(color: Colors.white, fontSize: 20),
+            textStyle: TextStyle(color: Colors.white, fontSize: 18),
             height: 55,
             moreIconColor: Colors.white,
             menus: getMenus(context),
@@ -168,8 +172,10 @@ class PlutoMenuBarDemo extends StatelessWidget {
           PlutoMenuBar(
             backgroundColor: Colors.black,
             gradient: false,
-            textStyle: TextStyle(color: Colors.white, fontSize: 25),
+            textStyle: TextStyle(color: Colors.white, fontSize: 20),
             height: 65,
+            menuIconColor: Colors.white,
+            menuIconSize: 26,
             moreIconColor: Colors.white,
             menus: getMenus(context),
           ),
