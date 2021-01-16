@@ -6,7 +6,7 @@ import 'package:pluto_menu_bar/pluto_menu_bar.dart';
 import '../mock/mock_handle.dart';
 
 void main() {
-  testWidgets('When menus is null, Then failed creating menu bar',
+  testWidgets('When menus length is zero, Then failed creating menu bar',
       (WidgetTester tester) async {
     // given
     // when
@@ -17,7 +17,7 @@ void main() {
           home: Material(
             child: Container(
               child: PlutoMenuBar(
-                menus: null,
+                menus: [],
               ),
             ),
           ),
@@ -25,26 +25,6 @@ void main() {
       );
     }, throwsAssertionError);
   });
-
-  testWidgets('When menus length is zero, Then failed creating menu bar',
-          (WidgetTester tester) async {
-        // given
-        // when
-        // then
-        expect(() async {
-          await tester.pumpWidget(
-            MaterialApp(
-              home: Material(
-                child: Container(
-                  child: PlutoMenuBar(
-                    menus: [],
-                  ),
-                ),
-              ),
-            ),
-          );
-        }, throwsAssertionError);
-      });
 
   testWidgets('create menu bar', (WidgetTester tester) async {
     // given

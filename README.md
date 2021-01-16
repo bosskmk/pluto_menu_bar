@@ -1,4 +1,4 @@
-## PlutoMenuBar for flutter - v0.1.4
+## PlutoMenuBar for flutter - v1.0.0-nullsafety.0
 
 PlutoMenuBar is a horizontal menu bar for flutter.
 
@@ -131,3 +131,10 @@ class PlutoMenuBarDemo extends StatelessWidget {
   }
 }
 ```
+
+<br>
+
+### Pluto series
+> develop packages that make it easy to develop admin pages or CMS with Flutter.
+* [PlutoGrid](https://github.com/bosskmk/pluto_grid)
+* [PlutoMenuBar](https://github.com/bosskmk/pluto_menu_bar)

@@ -1,3 +1,7 @@
+## [1.0.0-nullsafety.0] - 2021. 1. 16
+
+* Null safety.
+
 ## [0.1.4] - 2020. 9. 30
 
 * Add a menu icon.

@@ -36,7 +36,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
       content: Text(text),
     );
 
-    Scaffold.of(context).showSnackBar(snackBar);
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   List<MenuItem> getMenus(BuildContext context) {
