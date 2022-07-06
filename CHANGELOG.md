@@ -1,3 +1,7 @@
+## [1.1.1] - 2022. 7. 6
+
+* Fix an error when the submenu was disposed.
+
 ## [1.1.0] - 2022. 7. 6
 
 * Add checkbox, radio.

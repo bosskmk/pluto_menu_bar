@@ -1,4 +1,4 @@
-## PlutoMenuBar for flutter - v1.1.0
+## PlutoMenuBar for flutter - v1.1.1
 
 PlutoMenuBar is a horizontal menu bar for flutter.
 

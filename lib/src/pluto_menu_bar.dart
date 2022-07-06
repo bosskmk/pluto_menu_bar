@@ -312,6 +312,15 @@ class _MenuWidget extends StatefulWidget {
 }
 
 class _MenuWidgetState extends State<_MenuWidget> {
+  bool _disposed = false;
+
+  @override
+  void dispose() {
+    _disposed = true;
+
+    super.dispose();
+  }
+
   void openMenu(PlutoMenuItem menu) async {
     if (widget.menu._hasChildren) {
       PlutoMenuItem? selectedMenu = await showSubMenu(widget.menu);
@@ -332,6 +341,10 @@ class _MenuWidgetState extends State<_MenuWidget> {
   }) async {
     if (!menu._hasChildren) {
       return menu;
+    }
+
+    if (_disposed) {
+      return Future.value();
     }
 
     final items = [...menu.children!];
@@ -388,6 +401,10 @@ class _MenuWidgetState extends State<_MenuWidget> {
     BuildContext context,
     List<PlutoMenuItem> menuItems,
   ) async {
+    if (_disposed) {
+      return Future.value();
+    }
+
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
