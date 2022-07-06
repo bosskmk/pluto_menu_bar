@@ -1,3 +1,7 @@
+## [1.1.0] - 2022. 7. 6
+
+* Add checkbox, radio.
+
 ## [1.0.0] - 2022. 7. 6
 
 * Update for flutter 2.5+

@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 import 'package:pluto_menu_bar/pluto_menu_bar.dart';
 
@@ -71,6 +73,29 @@ class PlutoMenuBarDemo extends StatelessWidget {
             title: 'Menu 1-2',
             onTap: () => message(context, 'Menu 1-2 tap'),
           ),
+          PlutoMenuItem.checkbox(
+            title: 'Menu 1-3',
+            initialCheckValue: true,
+            onTap: () => message(context, 'Menu 1-3 tap'),
+            onChanged: (flag) => print(flag),
+          ),
+          PlutoMenuItem.radio(
+            title: 'Menu 1-3',
+            initialRadioValue: _RadioItems.one,
+            radioItems: _RadioItems.values,
+            onTap: () => message(context, 'Menu 1-3 tap'),
+            onChanged: (item) => print(item),
+            getTitle: (item) {
+              switch (item as _RadioItems) {
+                case _RadioItems.one:
+                  return 'One';
+                case _RadioItems.two:
+                  return 'Two';
+                case _RadioItems.three:
+                  return 'Three';
+              }
+            },
+          ),
         ],
       ),
       PlutoMenuItem(
@@ -143,6 +168,8 @@ class PlutoMenuBarDemo extends StatelessWidget {
         const SizedBox(height: 30),
         PlutoMenuBar(
           backgroundColor: Colors.deepOrange,
+          activatedColor: Colors.white,
+          indicatorColor: Colors.deepOrange,
           textStyle: const TextStyle(color: Colors.white),
           moreIconColor: Colors.white,
           menus: getMenus(context),
@@ -150,6 +177,8 @@ class PlutoMenuBarDemo extends StatelessWidget {
         const SizedBox(height: 30),
         PlutoMenuBar(
           backgroundColor: Colors.orange,
+          activatedColor: Colors.white,
+          indicatorColor: Colors.orange,
           textStyle: const TextStyle(color: Colors.white, fontSize: 18),
           height: 55,
           moreIconColor: Colors.white,
@@ -158,6 +187,9 @@ class PlutoMenuBarDemo extends StatelessWidget {
         const SizedBox(height: 30),
         PlutoMenuBar(
           backgroundColor: Colors.black,
+          activatedColor: Colors.white,
+          unselectedColor: Colors.white70,
+          indicatorColor: Colors.black,
           textStyle: const TextStyle(color: Colors.white, fontSize: 20),
           height: 65,
           menuIconColor: Colors.white,
@@ -168,4 +200,10 @@ class PlutoMenuBarDemo extends StatelessWidget {
       ],
     );
   }
+}
+
+enum _RadioItems {
+  one,
+  two,
+  three,
 }
