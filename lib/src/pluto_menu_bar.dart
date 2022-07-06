@@ -1,7 +1,8 @@
-part of '../pluto_menu_bar.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 
 class PlutoMenuBar extends StatefulWidget {
-  /// Pass [MenuItem] to List.
+  /// Pass [PlutoMenuItem] to List.
   /// create submenus by continuing to pass MenuItem to children as a List.
   ///
   /// ```dart
@@ -15,7 +16,7 @@ class PlutoMenuBar extends StatefulWidget {
   ///   ],
   /// ),
   /// ```
-  final List<MenuItem> menus;
+  final List<PlutoMenuItem> menus;
 
   /// Text of the back button. (default. 'Go back')
   final String goBackButtonText;
@@ -38,11 +39,10 @@ class PlutoMenuBar extends StatefulWidget {
   /// more icon color. (default. 'black54')
   final Color moreIconColor;
 
-  /// Enable gradient of BackgroundColor. (default. 'true')
-  final bool gradient;
-
   /// [TextStyle] of Menu title.
   final TextStyle textStyle;
+
+  final EdgeInsets menuPadding;
 
   PlutoMenuBar({
     required this.menus,
@@ -53,8 +53,8 @@ class PlutoMenuBar extends StatefulWidget {
     this.menuIconColor = Colors.black54,
     this.menuIconSize = 20,
     this.moreIconColor = Colors.black54,
-    this.gradient = true,
     this.textStyle = const TextStyle(),
+    this.menuPadding = const EdgeInsets.symmetric(horizontal: 15),
   }) : assert(menus.length > 0);
 
   @override
@@ -69,48 +69,38 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
         return Container(
           width: size.maxWidth,
           height: widget.height,
-          padding: EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: widget.gradient ? null : widget.backgroundColor,
-            gradient: widget.gradient
-                ? LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      widget.backgroundColor,
-                      widget.backgroundColor.withOpacity(0.54),
-                    ],
-                    stops: [0.90, 1],
-                  )
-                : null,
+            color: widget.backgroundColor,
             border: Border(
               top: BorderSide(color: widget.borderColor),
               bottom: BorderSide(color: widget.borderColor),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
-                spreadRadius: 0,
-                blurRadius: 0,
-                offset: Offset(0, 0.5), // changes position of shadow
-              ),
-            ],
           ),
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.menus.length,
-            itemBuilder: (_, index) {
-              return _MenuWidget(
-                widget.menus[index],
-                goBackButtonText: widget.goBackButtonText,
-                height: widget.height,
-                backgroundColor: widget.backgroundColor,
-                menuIconColor: widget.menuIconColor,
-                menuIconSize: widget.menuIconSize,
-                moreIconColor: widget.moreIconColor,
-                textStyle: widget.textStyle,
-              );
-            },
+          child: ScrollConfiguration(
+            behavior: ScrollConfiguration.of(context).copyWith(
+              dragDevices: {
+                PointerDeviceKind.touch,
+                PointerDeviceKind.mouse,
+              },
+            ),
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.menus.length,
+              itemBuilder: (_, index) {
+                return _MenuWidget(
+                  widget.menus[index],
+                  goBackButtonText: widget.goBackButtonText,
+                  height: widget.height,
+                  padding: widget.menuPadding,
+                  backgroundColor: widget.backgroundColor,
+                  menuIconColor: widget.menuIconColor,
+                  menuIconSize: widget.menuIconSize,
+                  moreIconColor: widget.moreIconColor,
+                  textStyle: widget.textStyle,
+                  offset: widget.menuPadding.left,
+                );
+              },
+            ),
           ),
         );
       },
@@ -118,7 +108,7 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
   }
 }
 
-class MenuItem {
+class PlutoMenuItem {
   /// Menu title
   final String? title;
 
@@ -127,19 +117,21 @@ class MenuItem {
   /// Callback executed when a menu is tapped
   final Function()? onTap;
 
-  /// Passing [MenuItem] to a [List] creates a sub-menu.
-  final List<MenuItem>? children;
+  /// Passing [PlutoMenuItem] to a [List] creates a sub-menu.
+  final List<PlutoMenuItem>? children;
 
-  MenuItem({
+  PlutoMenuItem({
     this.title,
     this.icon,
     this.onTap,
     this.children,
   }) : _key = GlobalKey();
 
-  MenuItem._back({
+  PlutoMenuItem._back({
     this.title,
+    // ignore: unused_element
     this.icon,
+    // ignore: unused_element
     this.onTap,
     this.children,
   })  : _key = GlobalKey(),
@@ -158,8 +150,8 @@ class MenuItem {
   bool get _hasChildren => children != null && children!.length > 0;
 }
 
-class _MenuWidget extends StatelessWidget {
-  final MenuItem menu;
+class _MenuWidget extends StatefulWidget {
+  final PlutoMenuItem menu;
 
   final String? goBackButtonText;
 
@@ -173,7 +165,11 @@ class _MenuWidget extends StatelessWidget {
 
   final Color? moreIconColor;
 
+  final EdgeInsets? padding;
+
   final TextStyle? textStyle;
+
+  final double offset;
 
   _MenuWidget(
     this.menu, {
@@ -183,51 +179,97 @@ class _MenuWidget extends StatelessWidget {
     this.menuIconColor,
     this.menuIconSize,
     this.moreIconColor,
+    this.padding,
     this.textStyle,
+    this.offset = 0,
   }) : super(key: menu._key);
 
-  Widget _buildPopupItem(MenuItem _menu) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (_menu.icon != null) ...[
-          Icon(
-            _menu.icon,
-            color: menuIconColor,
-            size: menuIconSize,
-          ),
-          SizedBox(
-            width: 5,
-          ),
-        ],
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 3),
-            child: Text(
-              _menu.title!,
-              style: textStyle,
-              maxLines: 1,
-              overflow: TextOverflow.visible,
-            ),
-          ),
-        ),
-        if (_menu._hasChildren && !_menu._isBack)
-          Icon(
-            Icons.arrow_right,
-            color: moreIconColor,
-          ),
-      ],
+  @override
+  State<_MenuWidget> createState() => _MenuWidgetState();
+}
+
+class _MenuWidgetState extends State<_MenuWidget> {
+  void openMenu(PlutoMenuItem menu) async {
+    if (widget.menu._hasChildren) {
+      PlutoMenuItem? selectedMenu = await showSubMenu(widget.menu);
+
+      if (selectedMenu?.onTap != null) {
+        selectedMenu!.onTap!();
+      }
+    } else if (widget.menu.onTap != null) {
+      widget.menu.onTap!();
+    }
+  }
+
+  Future<PlutoMenuItem?> showSubMenu(
+    PlutoMenuItem menu, {
+    PlutoMenuItem? previousMenu,
+    int? stackIdx,
+    List<PlutoMenuItem>? stack,
+  }) async {
+    if (!menu._hasChildren) {
+      return menu;
+    }
+
+    final items = [...menu.children!];
+
+    if (previousMenu != null) {
+      items.add(PlutoMenuItem._back(
+        title: widget.goBackButtonText,
+        children: previousMenu.children,
+      ));
+    }
+
+    PlutoMenuItem? _selectedMenu = await _showPopupMenu(
+      context,
+      items,
+    );
+
+    if (_selectedMenu == null) {
+      return null;
+    }
+
+    PlutoMenuItem? _previousMenu = menu;
+
+    if (!_selectedMenu._hasChildren) {
+      return _selectedMenu;
+    }
+
+    if (_selectedMenu._isBack) {
+      stackIdx ??= 0;
+      --stackIdx;
+      if (stackIdx < 0) {
+        _previousMenu = null;
+      } else {
+        _previousMenu = stack![stackIdx];
+      }
+    } else {
+      if (stackIdx == null) {
+        stackIdx = 0;
+        stack = [menu];
+      } else {
+        stackIdx += 1;
+        stack!.add(menu);
+      }
+    }
+
+    return await showSubMenu(
+      _selectedMenu,
+      previousMenu: _previousMenu,
+      stackIdx: stackIdx,
+      stack: stack,
     );
   }
 
-  Future<MenuItem?> _showPopupMenu(
+  Future<PlutoMenuItem?> _showPopupMenu(
     BuildContext context,
-    List<MenuItem> menuItems,
+    List<PlutoMenuItem> menuItems,
   ) async {
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
-    final Offset position = menu._position + Offset(0, height! - 11);
+    final Offset position =
+        widget.menu._position + Offset(-widget.offset, widget.height! - 1);
 
     return await showMenu(
       context: context,
@@ -238,119 +280,79 @@ class _MenuWidget extends StatelessWidget {
         overlay.size.height,
       ),
       items: menuItems.map((menu) {
-        return PopupMenuItem<MenuItem>(
+        return PopupMenuItem<PlutoMenuItem>(
           value: menu,
           child: _buildPopupItem(menu),
         );
       }).toList(),
       elevation: 2.0,
-      color: backgroundColor,
+      color: widget.backgroundColor,
     );
   }
 
-  Widget _getMenu(
-    BuildContext context,
-    MenuItem menu,
-  ) {
-    Future<MenuItem?> _getSelectedMenu(
-      MenuItem menu, {
-      MenuItem? previousMenu,
-      int? stackIdx,
-      List<MenuItem>? stack,
-    }) async {
-      if (!menu._hasChildren) {
-        return menu;
-      }
+  Widget _buildPopupItem(PlutoMenuItem _menu) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        if (_menu.icon != null) ...[
+          Icon(
+            _menu.icon,
+            color: widget.menuIconColor,
+            size: widget.menuIconSize,
+          ),
+          SizedBox(
+            width: 5,
+          ),
+        ],
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 3),
+            child: Text(
+              _menu.title!,
+              style: widget.textStyle,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+            ),
+          ),
+        ),
+        if (_menu._hasChildren && !_menu._isBack)
+          Icon(
+            Icons.arrow_right,
+            color: widget.moreIconColor,
+          ),
+      ],
+    );
+  }
 
-      final items = [...menu.children!];
-
-      if (previousMenu != null) {
-        items.add(MenuItem._back(
-          title: goBackButtonText,
-          children: previousMenu.children,
-        ));
-      }
-
-      MenuItem? _selectedMenu = await _showPopupMenu(
-        context,
-        items,
-      );
-
-      if (_selectedMenu == null) {
-        return null;
-      }
-
-      MenuItem? _previousMenu = menu;
-
-      if (!_selectedMenu._hasChildren) {
-        return _selectedMenu;
-      }
-
-      if (_selectedMenu._isBack) {
-        stackIdx ??= 0;
-        --stackIdx;
-        if (stackIdx < 0) {
-          _previousMenu = null;
-        } else {
-          _previousMenu = stack![stackIdx];
-        }
-      } else {
-        if (stackIdx == null) {
-          stackIdx = 0;
-          stack = [menu];
-        } else {
-          stackIdx += 1;
-          stack!.add(menu);
-        }
-      }
-
-      return await _getSelectedMenu(
-        _selectedMenu,
-        previousMenu: _previousMenu,
-        stackIdx: stackIdx,
-        stack: stack,
-      );
-    }
-
-    return InkWell(
-      onTap: () async {
-        if (menu._hasChildren) {
-          MenuItem? selectedMenu = await _getSelectedMenu(menu);
-
-          if (selectedMenu?.onTap != null) {
-            selectedMenu!.onTap!();
-          }
-        } else if (menu.onTap != null) {
-          menu.onTap!();
-        }
-      },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 15),
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: widget.height,
+      padding: widget.padding,
+      child: InkWell(
+        onTap: () async {
+          openMenu(widget.menu);
+        },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (menu.icon != null) ...[
+            if (widget.menu.icon != null) ...[
               Icon(
-                menu.icon,
-                color: menuIconColor,
-                size: menuIconSize,
+                widget.menu.icon,
+                color: widget.menuIconColor,
+                size: widget.menuIconSize,
               ),
               SizedBox(
                 width: 5,
               ),
             ],
             Text(
-              menu.title!,
-              style: textStyle,
+              widget.menu.title!,
+              style: widget.textStyle,
             ),
           ],
         ),
       ),
     );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return _getMenu(context, menu);
   }
 }

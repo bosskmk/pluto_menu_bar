@@ -1,3 +1,7 @@
+## [1.0.0] - 2022. 7. 6
+
+* Update for flutter 2.5+
+
 ## [1.0.0-nullsafety.0] - 2021. 1. 16
 
 * Null safety.
