@@ -1,6 +1,6 @@
 name: pluto_menu_bar
 description: A menu bar for flutter. You can add as many submenus as you want, and you can change the default style.
-version: 1.1.1
+version: 1.1.2
 homepage: https://bosskmk.github.io
 repository: https://github.com/bosskmk/pluto_menu_bar
 

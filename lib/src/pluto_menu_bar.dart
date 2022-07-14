@@ -408,16 +408,15 @@ class _MenuWidgetState extends State<_MenuWidget> {
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
-    final Offset position =
-        widget.menu._position + Offset(-widget.offset, widget.height! - 1);
+    final Offset position = widget.menu._position + Offset(0, widget.height!);
 
     return await showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
         position.dx,
         position.dy,
-        overlay.size.width,
-        overlay.size.height,
+        position.dx + overlay.size.width,
+        position.dy + overlay.size.height,
       ),
       items: menuItems.map((menu) {
         Widget menuItem;
@@ -442,6 +441,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
       }).toList(),
       elevation: 2.0,
       color: widget.backgroundColor,
+      useRootNavigator: true,
     );
   }
 

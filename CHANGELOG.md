@@ -1,3 +1,7 @@
+## [1.1.2] - 2022. 7. 15
+
+* Fix menu position.
+
 ## [1.1.1] - 2022. 7. 6
 
 * Fix an error when the submenu was disposed.
