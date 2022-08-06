@@ -196,6 +196,22 @@ class PlutoMenuItem {
     );
   }
 
+  static PlutoMenuItem divider({
+    double height = 16.0,
+    Color? color,
+    double? indent,
+    double? endIndent,
+    double? thickness,
+  }) {
+    return PlutoMenuItemDivider(
+      height: height,
+      color: color,
+      indent: indent,
+      endIndent: endIndent,
+      thickness: thickness,
+    );
+  }
+
   PlutoMenuItem._back({
     required this.title,
     this.icon,
@@ -259,6 +275,28 @@ class PlutoMenuItemRadio extends PlutoMenuItem {
   final Object? initialRadioValue;
 
   final List<Object> radioItems;
+}
+
+class PlutoMenuItemDivider extends PlutoMenuItem {
+  PlutoMenuItemDivider({
+    this.height = 16.0,
+    this.color,
+    this.indent,
+    this.endIndent,
+    this.thickness,
+  }) : super(title: '_divider', enable: false);
+
+  PlutoMenuItemType get type => PlutoMenuItemType.divider;
+
+  final double height;
+
+  final Color? color;
+
+  final double? indent;
+
+  final double? endIndent;
+
+  final double? thickness;
 }
 
 class _MenuWidget extends StatefulWidget {
@@ -420,6 +458,8 @@ class _MenuWidgetState extends State<_MenuWidget> {
       ),
       items: menuItems.map((menu) {
         Widget menuItem;
+        double height = kMinInteractiveDimension;
+        EdgeInsets? padding;
 
         switch (menu.type) {
           case PlutoMenuItemType.button:
@@ -431,12 +471,19 @@ class _MenuWidgetState extends State<_MenuWidget> {
           case PlutoMenuItemType.radio:
             menuItem = _buildRadioItem(menu);
             break;
+          case PlutoMenuItemType.divider:
+            menuItem = _buildDividerItem(menu as PlutoMenuItemDivider);
+            height = menu.height;
+            padding = EdgeInsets.only(left: 0, right: 0);
+            break;
         }
 
         return PopupMenuItem<PlutoMenuItem>(
           value: menu,
           child: menuItem,
           enabled: menu.enable,
+          height: height,
+          padding: padding,
         );
       }).toList(),
       elevation: 2.0,
@@ -572,6 +619,17 @@ class _MenuWidgetState extends State<_MenuWidget> {
     );
   }
 
+  Widget _buildDividerItem(PlutoMenuItem _menu) {
+    final dividerItem = _menu as PlutoMenuItemDivider;
+
+    return Divider(
+      color: dividerItem.color,
+      indent: dividerItem.indent,
+      endIndent: dividerItem.endIndent,
+      thickness: dividerItem.thickness,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -609,4 +667,5 @@ enum PlutoMenuItemType {
   button,
   checkbox,
   radio,
+  divider,
 }

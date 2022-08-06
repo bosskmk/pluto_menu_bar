@@ -1,3 +1,7 @@
+## [1.1.3] - 2022. 8. 7
+
+* Add Divider.
+
 ## [1.1.2] - 2022. 7. 15
 
 * Fix menu position.

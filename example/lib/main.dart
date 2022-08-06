@@ -73,12 +73,14 @@ class PlutoMenuBarDemo extends StatelessWidget {
             title: 'Menu 1-2',
             onTap: () => message(context, 'Menu 1-2 tap'),
           ),
+          PlutoMenuItem.divider(height: 10),
           PlutoMenuItem.checkbox(
             title: 'Menu 1-3',
             initialCheckValue: true,
             onTap: () => message(context, 'Menu 1-3 tap'),
             onChanged: (flag) => print(flag),
           ),
+          PlutoMenuItem.divider(height: 10),
           PlutoMenuItem.radio(
             title: 'Menu 1-3',
             initialRadioValue: _RadioItems.one,
