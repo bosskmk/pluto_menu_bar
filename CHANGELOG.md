@@ -1,3 +1,7 @@
+## [1.1.4] - 2022. 9. 26
+
+* Add showBackButton.
+
 ## [1.1.3] - 2022. 8. 7
 
 * Add Divider.
