@@ -23,6 +23,9 @@ class PlutoMenuBar extends StatefulWidget {
   /// Text of the back button. (default. 'Go back')
   final String goBackButtonText;
 
+  /// show the back button (default : true )
+  final bool showBackButton;
+
   /// menu height. (default. '45')
   final double height;
 
@@ -61,6 +64,7 @@ class PlutoMenuBar extends StatefulWidget {
   PlutoMenuBar({
     required this.menus,
     this.goBackButtonText = 'Go back',
+    this.showBackButton = true,
     this.height = 45,
     this.backgroundColor = Colors.white,
     this.borderColor = Colors.black12,
@@ -111,6 +115,7 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                 return _MenuWidget(
                   widget.menus[index],
                   goBackButtonText: widget.goBackButtonText,
+                  showBackButton: widget.showBackButton,
                   height: widget.height,
                   padding: widget.menuPadding,
                   backgroundColor: widget.backgroundColor,
@@ -304,6 +309,8 @@ class _MenuWidget extends StatefulWidget {
 
   final String goBackButtonText;
 
+  final bool showBackButton;
+
   final double? height;
 
   final Color? backgroundColor;
@@ -331,6 +338,7 @@ class _MenuWidget extends StatefulWidget {
   _MenuWidget(
     this.menu, {
     this.goBackButtonText = 'Go back',
+    this.showBackButton = true,
     this.height,
     this.backgroundColor,
     this.menuIconColor,
@@ -388,10 +396,11 @@ class _MenuWidgetState extends State<_MenuWidget> {
     final items = [...menu.children!];
 
     if (previousMenu != null) {
-      items.add(PlutoMenuItem._back(
-        title: widget.goBackButtonText,
-        children: previousMenu.children,
-      ));
+      if (widget.showBackButton)
+        items.add(PlutoMenuItem._back(
+          title: widget.goBackButtonText,
+          children: previousMenu.children,
+        ));
     }
 
     PlutoMenuItem? _selectedMenu = await _showPopupMenu(
