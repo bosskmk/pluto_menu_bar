@@ -1,5 +1,7 @@
 // ignore_for_file: unused_element
 
+import 'dart:collection';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
@@ -157,7 +159,9 @@ class PlutoMenuItem {
     this.enable = true,
     this.onTap,
     this.children,
-  }) : _key = GlobalKey();
+  }) : _key = GlobalKey() {
+    _setParent();
+  }
 
   factory PlutoMenuItem.checkbox({
     required String title,
@@ -228,17 +232,34 @@ class PlutoMenuItem {
 
   PlutoMenuItemType get type => PlutoMenuItemType.button;
 
-  late final GlobalKey _key;
+  final GlobalKey _key;
 
   bool _isBack = false;
 
   Offset get _position {
+    if (_key.currentContext == null) return Offset.zero;
+
     RenderBox box = _key.currentContext!.findRenderObject() as RenderBox;
 
     return box.localToGlobal(Offset.zero);
   }
 
+  Size get _size {
+    if (_key.currentContext == null) return Size.zero;
+
+    RenderBox box = _key.currentContext!.findRenderObject() as RenderBox;
+
+    return box.size;
+  }
+
   bool get _hasChildren => children != null && children!.length > 0;
+
+  PlutoMenuItem? _parent;
+
+  void _setParent() {
+    if (!_hasChildren) return;
+    children!.forEach((e) => e._parent = this);
+  }
 }
 
 class PlutoMenuItemCheckbox extends PlutoMenuItem {
@@ -311,15 +332,15 @@ class _MenuWidget extends StatefulWidget {
 
   final bool showBackButton;
 
-  final double? height;
+  final double height;
 
-  final Color? backgroundColor;
+  final Color backgroundColor;
 
-  final Color? menuIconColor;
+  final Color menuIconColor;
 
-  final double? menuIconSize;
+  final double menuIconSize;
 
-  final Color? moreIconColor;
+  final Color moreIconColor;
 
   final double iconScale;
 
@@ -339,11 +360,11 @@ class _MenuWidget extends StatefulWidget {
     this.menu, {
     this.goBackButtonText = 'Go back',
     this.showBackButton = true,
-    this.height,
-    this.backgroundColor,
-    this.menuIconColor,
-    this.menuIconSize,
-    this.moreIconColor,
+    this.height = 45,
+    this.backgroundColor = Colors.white,
+    this.menuIconColor = Colors.black54,
+    this.menuIconSize = 20,
+    this.moreIconColor = Colors.black54,
     this.iconScale = 0.86,
     this.unselectedColor = Colors.black12,
     this.activatedColor = Colors.blue,
@@ -360,6 +381,10 @@ class _MenuWidget extends StatefulWidget {
 class _MenuWidgetState extends State<_MenuWidget> {
   bool _disposed = false;
 
+  SplayTreeMap<String, OverlayEntry> _popups = SplayTreeMap();
+
+  Set<String> _hoveredPopupKey = {};
+
   @override
   void dispose() {
     _disposed = true;
@@ -369,28 +394,24 @@ class _MenuWidgetState extends State<_MenuWidget> {
 
   void openMenu(PlutoMenuItem menu) async {
     if (widget.menu._hasChildren) {
-      PlutoMenuItem? selectedMenu = await showSubMenu(widget.menu);
-
-      if (selectedMenu?.onTap != null) {
-        selectedMenu!.onTap!();
-      }
+      showSubMenu(widget.menu);
     } else if (widget.menu.onTap != null) {
       widget.menu.onTap!();
     }
   }
 
-  Future<PlutoMenuItem?> showSubMenu(
+  void showSubMenu(
     PlutoMenuItem menu, {
     PlutoMenuItem? previousMenu,
     int? stackIdx,
     List<PlutoMenuItem>? stack,
   }) async {
     if (!menu._hasChildren) {
-      return menu;
+      return;
     }
 
     if (_disposed) {
-      return Future.value();
+      return;
     }
 
     final items = [...menu.children!];
@@ -403,239 +424,308 @@ class _MenuWidgetState extends State<_MenuWidget> {
         ));
     }
 
-    PlutoMenuItem? _selectedMenu = await _showPopupMenu(
+    _showPopupMenu(
+      menu,
       context,
       items,
     );
-
-    if (_selectedMenu == null) {
-      return null;
-    }
-
-    PlutoMenuItem? _previousMenu = menu;
-
-    if (!_selectedMenu._hasChildren) {
-      return _selectedMenu;
-    }
-
-    if (_selectedMenu._isBack) {
-      stackIdx ??= 0;
-      --stackIdx;
-      if (stackIdx < 0) {
-        _previousMenu = null;
-      } else {
-        _previousMenu = stack![stackIdx];
-      }
-    } else {
-      if (stackIdx == null) {
-        stackIdx = 0;
-        stack = [menu];
-      } else {
-        stackIdx += 1;
-        stack!.add(menu);
-      }
-    }
-
-    return await showSubMenu(
-      _selectedMenu,
-      previousMenu: _previousMenu,
-      stackIdx: stackIdx,
-      stack: stack,
-    );
   }
 
-  Future<PlutoMenuItem?> _showPopupMenu(
+  void _showPopupMenu(
+    PlutoMenuItem menu,
     BuildContext context,
     List<PlutoMenuItem> menuItems,
   ) async {
     if (_disposed) {
-      return Future.value();
+      return;
     }
+
+    if (_popups.containsKey(menu._key.toString())) return;
 
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
 
-    final Offset position = widget.menu._position + Offset(0, widget.height!);
+    final Offset menuPosition = menu._position;
+    final Size menuSize = menu._size;
+    final bool rootMenu = menu._parent == null;
+    final Offset positionOffset = rootMenu
+        ? Offset(0, widget.height)
+        : Offset(
+            menuSize.width - 10,
+            10,
+          );
 
-    return await showMenu(
-      context: context,
-      position: RelativeRect.fromLTRB(
-        position.dx,
-        position.dy,
-        position.dx + overlay.size.width,
-        position.dy + overlay.size.height,
-      ),
-      items: menuItems.map((menu) {
-        Widget menuItem;
-        double height = kMinInteractiveDimension;
-        EdgeInsets? padding;
+    Offset position = menuPosition + positionOffset;
+    double? top = position.dy;
+    double? left = position.dx;
+    double? right;
+    double? bottom;
 
-        switch (menu.type) {
-          case PlutoMenuItemType.button:
-            menuItem = _buildButtonItem(menu);
-            break;
-          case PlutoMenuItemType.checkbox:
-            menuItem = _buildCheckboxItem(menu);
-            break;
-          case PlutoMenuItemType.radio:
-            menuItem = _buildRadioItem(menu);
-            break;
-          case PlutoMenuItemType.divider:
-            menuItem = _buildDividerItem(menu as PlutoMenuItemDivider);
-            height = menu.height;
-            padding = EdgeInsets.only(left: 0, right: 0);
-            break;
-        }
+    if (position.dx + menuSize.width > overlay.size.width) {
+      if (rootMenu) {
+        left = null;
+        right = 0;
+      } else {
+        left = null;
+        right = overlay.size.width - menuPosition.dx;
+      }
+    }
 
-        return PopupMenuItem<PlutoMenuItem>(
-          value: menu,
-          child: menuItem,
-          enabled: menu.enable,
-          height: height,
-          padding: padding,
+    _popups[menu._key.toString()] = OverlayEntry(
+      builder: (c) {
+        return Positioned(
+          top: top,
+          left: left,
+          right: right,
+          bottom: bottom,
+          child: Material(
+            child: ConstrainedBox(
+              constraints: BoxConstraints.loose(overlay.size),
+              child: MouseRegion(
+                onHover: (event) async {
+                  _hoveredPopupKey.add(menu._key.toString());
+                  var current = menu._parent;
+                  while (current != null) {
+                    _hoveredPopupKey.add(current._key.toString());
+                    current = current._parent;
+                  }
+                },
+                onExit: (event) {
+                  _hoveredPopupKey.clear();
+                  Future.delayed(const Duration(milliseconds: 60), () {
+                    if (!_hoveredPopupKey.contains(menu._key.toString())) {
+                      _popups[menu._key.toString()]?.remove();
+                      _popups.remove(menu._key.toString());
+                    }
+
+                    if (_hoveredPopupKey.isEmpty) {
+                      _popups.forEach((k, v) => v.remove());
+                      _popups.clear();
+                    }
+                  });
+                },
+                child: IntrinsicWidth(
+                  child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: menuItems.map((item) {
+                        Widget menuItem;
+                        switch (item.type) {
+                          case PlutoMenuItemType.button:
+                            menuItem = _buildButtonItem(item);
+                            break;
+                          case PlutoMenuItemType.checkbox:
+                            menuItem = _buildCheckboxItem(item);
+                            break;
+                          case PlutoMenuItemType.radio:
+                            menuItem = _buildRadioItem(item);
+                            break;
+                          case PlutoMenuItemType.divider:
+                            menuItem = _buildDividerItem(item);
+                            break;
+                        }
+                        return menuItem;
+                      }).toList()),
+                ),
+              ),
+            ),
+          ),
         );
-      }).toList(),
-      elevation: 2.0,
-      color: widget.backgroundColor,
-      useRootNavigator: true,
+      },
     );
+
+    Overlay.of(context)!.insert(_popups[menu._key.toString()]!);
   }
 
   Widget _buildButtonItem(PlutoMenuItem _menu) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (_menu.icon != null) ...[
-          Icon(
-            _menu.icon,
-            color: widget.menuIconColor,
-            size: widget.menuIconSize,
-          ),
-          SizedBox(
-            width: 5,
-          ),
-        ],
-        Expanded(
-          child: Text(
-            _menu.title,
-            style: widget.textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.visible,
+    final currentPopupKey = _menu._key.toString();
+    return InkWell(
+      onTap: _menu.onTap,
+      key: _menu._key,
+      child: ColoredBox(
+        color: widget.backgroundColor,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          child: MouseRegion(
+            onHover: (event) async {
+              if (_menu._hasChildren) {
+                _hoveredPopupKey.add(_menu._key.toString());
+                var current = _menu._parent;
+                while (current != null) {
+                  _hoveredPopupKey.add(current._key.toString());
+                  current = current._parent;
+                }
+
+                Future.delayed(const Duration(milliseconds: 30), () {
+                  showSubMenu(_menu);
+                });
+              }
+            },
+            onExit: (event) {
+              if (_menu._hasChildren) {
+                _hoveredPopupKey.clear();
+                Future.delayed(const Duration(milliseconds: 60), () {
+                  if (!_hoveredPopupKey.contains(currentPopupKey)) {
+                    _popups[currentPopupKey]?.remove();
+                    _popups.remove(currentPopupKey);
+                  }
+
+                  if (_hoveredPopupKey.isEmpty) {
+                    _popups.forEach((k, v) => v.remove());
+                    _popups.clear();
+                  }
+                });
+              }
+            },
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (_menu.icon != null) ...[
+                  Icon(
+                    _menu.icon,
+                    color: widget.menuIconColor,
+                    size: widget.menuIconSize,
+                  ),
+                  SizedBox(
+                    width: 5,
+                  ),
+                ],
+                Expanded(
+                  child: Text(
+                    _menu.title,
+                    style: widget.textStyle,
+                    maxLines: 1,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+                if (_menu._hasChildren)
+                  Icon(
+                    Icons.arrow_right,
+                    color: widget.moreIconColor,
+                  ),
+              ],
+            ),
           ),
         ),
-        if (_menu._hasChildren && !_menu._isBack)
-          Icon(
-            Icons.arrow_right,
-            color: widget.moreIconColor,
-          ),
-      ],
+      ),
     );
   }
 
   Widget _buildCheckboxItem(PlutoMenuItem _menu) {
     final checkboxItem = _menu as PlutoMenuItemCheckbox;
     bool? checked = checkboxItem.initialCheckValue;
-    return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        StatefulBuilder(
-          builder: (_, setState) {
-            return Transform.scale(
-              scale: widget.iconScale,
-              child: Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: widget.unselectedColor,
-                ),
-                child: Checkbox(
-                  value: checked,
-                  activeColor: widget.activatedColor,
-                  checkColor: widget.indicatorColor,
-                  onChanged: (flag) {
-                    setState(() {
-                      checked = flag;
+    return ColoredBox(
+      color: widget.backgroundColor,
+      child: Row(
+        key: _menu._key,
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          StatefulBuilder(
+            builder: (_, setState) {
+              return Transform.scale(
+                scale: widget.iconScale,
+                child: Theme(
+                  data: ThemeData(
+                    unselectedWidgetColor: widget.unselectedColor,
+                  ),
+                  child: Checkbox(
+                    value: checked,
+                    activeColor: widget.activatedColor,
+                    checkColor: widget.indicatorColor,
+                    onChanged: (flag) {
+                      setState(() {
+                        checked = flag;
 
-                      if (checkboxItem.onChanged != null) {
-                        checkboxItem.onChanged!(flag);
-                      }
-                    });
-                  },
+                        if (checkboxItem.onChanged != null) {
+                          checkboxItem.onChanged!(flag);
+                        }
+                      });
+                    },
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
-        Expanded(
-          child: Text(
-            _menu.title,
-            style: widget.textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.visible,
+              );
+            },
           ),
-        ),
-        if (_menu._hasChildren && !_menu._isBack)
-          Icon(
-            Icons.arrow_right,
-            color: widget.moreIconColor,
+          Expanded(
+            child: Text(
+              _menu.title,
+              style: widget.textStyle,
+              maxLines: 1,
+              overflow: TextOverflow.visible,
+            ),
           ),
-      ],
+          if (_menu._hasChildren && !_menu._isBack)
+            Icon(
+              Icons.arrow_right,
+              color: widget.moreIconColor,
+            ),
+        ],
+      ),
     );
   }
 
   Widget _buildRadioItem(PlutoMenuItem _menu) {
     final radioItem = _menu as PlutoMenuItemRadio;
     Object? selectedItem = radioItem.initialRadioValue;
-    return StatefulBuilder(
-      builder: (_, setState) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: radioItem.radioItems.map<Widget>((e) {
-            final String title = radioItem.getTitle == null
-                ? e.toString()
-                : radioItem.getTitle!(e);
+    return ColoredBox(
+      color: widget.backgroundColor,
+      child: StatefulBuilder(
+        key: _menu._key,
+        builder: (_, setState) {
+          return Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: radioItem.radioItems.map<Widget>((e) {
+              final String title = radioItem.getTitle == null
+                  ? e.toString()
+                  : radioItem.getTitle!(e);
 
-            return ListTile(
-              title: Text(title, style: widget.textStyle),
-              contentPadding: EdgeInsets.zero,
-              horizontalTitleGap: 0,
-              leading: Transform.scale(
-                scale: widget.iconScale,
-                child: Theme(
-                  data: ThemeData(
-                    unselectedWidgetColor: widget.unselectedColor,
-                  ),
-                  child: Radio<Object>(
-                    value: e,
-                    groupValue: selectedItem,
-                    activeColor: widget.activatedColor,
-                    onChanged: (changed) {
-                      setState(() {
-                        selectedItem = changed;
+              return ListTile(
+                title: Text(title, style: widget.textStyle),
+                contentPadding: EdgeInsets.zero,
+                horizontalTitleGap: 0,
+                leading: Transform.scale(
+                  scale: widget.iconScale,
+                  child: Theme(
+                    data: ThemeData(
+                      unselectedWidgetColor: widget.unselectedColor,
+                    ),
+                    child: Radio<Object>(
+                      value: e,
+                      groupValue: selectedItem,
+                      activeColor: widget.activatedColor,
+                      onChanged: (changed) {
+                        setState(() {
+                          selectedItem = changed;
 
-                        if (radioItem.onChanged != null) {
-                          radioItem.onChanged!(changed);
-                        }
-                      });
-                    },
+                          if (radioItem.onChanged != null) {
+                            radioItem.onChanged!(changed);
+                          }
+                        });
+                      },
+                    ),
                   ),
                 ),
-              ),
-            );
-          }).toList(growable: false),
-        );
-      },
+              );
+            }).toList(growable: false),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildDividerItem(PlutoMenuItem _menu) {
     final dividerItem = _menu as PlutoMenuItemDivider;
 
-    return Divider(
-      color: dividerItem.color,
-      indent: dividerItem.indent,
-      endIndent: dividerItem.endIndent,
-      thickness: dividerItem.thickness,
+    return ColoredBox(
+      color: widget.backgroundColor,
+      child: Divider(
+        key: _menu._key,
+        color: dividerItem.color,
+        indent: dividerItem.indent,
+        endIndent: dividerItem.endIndent,
+        thickness: dividerItem.thickness,
+      ),
     );
   }
 
@@ -644,28 +734,59 @@ class _MenuWidgetState extends State<_MenuWidget> {
     return Container(
       height: widget.height,
       padding: widget.padding,
-      child: InkWell(
-        onTap: () async {
-          openMenu(widget.menu);
+      child: MouseRegion(
+        onHover: (event) async {
+          _hoveredPopupKey.clear();
+
+          if (!widget.menu._hasChildren) return;
+
+          var current = widget.menu._parent;
+          while (current != null) {
+            _hoveredPopupKey.add(current._key.toString());
+            current = current._parent;
+          }
+
+          Future.delayed(const Duration(milliseconds: 30), () {
+            showSubMenu(widget.menu);
+          });
         },
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (widget.menu.icon != null) ...[
-              Icon(
-                widget.menu.icon,
-                color: widget.menuIconColor,
-                size: widget.menuIconSize,
-              ),
-              SizedBox(
-                width: 5,
+        onExit: (event) {
+          _hoveredPopupKey.clear();
+          Future.delayed(const Duration(milliseconds: 60), () {
+            if (!_hoveredPopupKey.contains(widget.menu._key.toString())) {
+              _popups[widget.menu._key.toString()]?.remove();
+              _popups.remove(widget.menu._key.toString());
+            }
+
+            if (_hoveredPopupKey.isEmpty) {
+              _popups.forEach((k, v) => v.remove());
+              _popups.clear();
+            }
+          });
+        },
+        child: InkWell(
+          onTap: () async {
+            openMenu(widget.menu);
+          },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.menu.icon != null) ...[
+                Icon(
+                  widget.menu.icon,
+                  color: widget.menuIconColor,
+                  size: widget.menuIconSize,
+                ),
+                SizedBox(
+                  width: 5,
+                ),
+              ],
+              Text(
+                widget.menu.title,
+                style: widget.textStyle,
               ),
             ],
-            Text(
-              widget.menu.title,
-              style: widget.textStyle,
-            ),
-          ],
+          ),
         ),
       ),
     );
