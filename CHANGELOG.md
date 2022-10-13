@@ -1,3 +1,7 @@
+## [2.0.0] - 2022. 10. 13
+
+* Add hover-open mode.
+
 ## [1.1.4] - 2022. 9. 26
 
 * Add showBackButton.
