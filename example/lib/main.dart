@@ -77,7 +77,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
           PlutoMenuItem.checkbox(
             title: 'Menu 1-3',
             initialCheckValue: true,
-            onTap: () => message(context, 'Menu 1-3 tap'),
+            // onTap: () => message(context, 'Menu 1-3 tap'),
             onChanged: (flag) => print(flag),
           ),
           PlutoMenuItem.divider(height: 10),
@@ -85,7 +85,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
             title: 'Menu 1-3',
             initialRadioValue: _RadioItems.one,
             radioItems: _RadioItems.values,
-            onTap: () => message(context, 'Menu 1-3 tap'),
+            // onTap: () => message(context, 'Menu 1-3 tap'),
             onChanged: (item) => print(item),
             getTitle: (item) {
               switch (item as _RadioItems) {
@@ -97,6 +97,31 @@ class PlutoMenuBarDemo extends StatelessWidget {
                   return 'Three';
               }
             },
+          ),
+          PlutoMenuItem(
+            title: 'Menu 1-4',
+            icon: Icons.group,
+            onTap: () => message(context, 'Menu 1-4 tap'),
+            children: [
+              PlutoMenuItem(
+                title: 'Menu 1-4-1',
+                onTap: () => message(context, 'Menu 1-4-1 tap'),
+                children: [
+                  PlutoMenuItem(
+                    title: 'Menu 1-4-1-1',
+                    onTap: () => message(context, 'Menu 1-4-1-1 tap'),
+                  ),
+                  PlutoMenuItem(
+                    title: 'Menu 1-4-1-2',
+                    onTap: () => message(context, 'Menu 1-4-1-2 tap'),
+                  ),
+                ],
+              ),
+              PlutoMenuItem(
+                title: 'Menu 1-4-2',
+                onTap: () => message(context, 'Menu 1-4-2 tap'),
+              ),
+            ],
           ),
         ],
       ),
@@ -164,7 +189,28 @@ class PlutoMenuBarDemo extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 30),
+        const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
+        const SizedBox(height: 30),
         PlutoMenuBar(
+          mode: PlutoMenuBarMode.hover,
+          menus: getMenus(context),
+        ),
+        const SizedBox(height: 30),
+        PlutoMenuBar(
+          mode: PlutoMenuBarMode.hover,
+          backgroundColor: Colors.deepOrange,
+          activatedColor: Colors.white,
+          indicatorColor: Colors.deepOrange,
+          textStyle: const TextStyle(color: Colors.white),
+          menuIconColor: Colors.white,
+          moreIconColor: Colors.white,
+          menus: getMenus(context),
+        ),
+        const SizedBox(height: 30),
+        const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
+        const SizedBox(height: 30),
+        PlutoMenuBar(
+          mode: PlutoMenuBarMode.tap,
           menus: getMenus(context),
         ),
         const SizedBox(height: 30),
@@ -173,29 +219,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
           activatedColor: Colors.white,
           indicatorColor: Colors.deepOrange,
           textStyle: const TextStyle(color: Colors.white),
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          backgroundColor: Colors.orange,
-          activatedColor: Colors.white,
-          indicatorColor: Colors.orange,
-          textStyle: const TextStyle(color: Colors.white, fontSize: 18),
-          height: 55,
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          backgroundColor: Colors.black,
-          activatedColor: Colors.white,
-          unselectedColor: Colors.white70,
-          indicatorColor: Colors.black,
-          textStyle: const TextStyle(color: Colors.white, fontSize: 20),
-          height: 65,
           menuIconColor: Colors.white,
-          menuIconSize: 26,
           moreIconColor: Colors.white,
           menus: getMenus(context),
         ),
