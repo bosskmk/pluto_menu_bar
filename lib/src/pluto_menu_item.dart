@@ -4,7 +4,12 @@ enum PlutoMenuItemType {
   button,
   checkbox,
   radio,
-  divider,
+  divider;
+
+  bool get isButton => this == PlutoMenuItemType.button;
+  bool get isCheckbox => this == PlutoMenuItemType.checkbox;
+  bool get isRadio => this == PlutoMenuItemType.radio;
+  bool get isDivider => this == PlutoMenuItemType.divider;
 }
 
 class PlutoMenuItem {
@@ -91,11 +96,11 @@ class PlutoMenuItem {
 
   PlutoMenuItem._back({
     required this.title,
-    this.icon,
-    this.enable = true,
-    this.onTap,
     this.children,
-  })  : _key = GlobalKey(),
+  })  : icon = null,
+        enable = true,
+        onTap = null,
+        _key = GlobalKey(),
         _isBack = true;
 
   PlutoMenuItemType get type => PlutoMenuItemType.button;
@@ -123,6 +128,8 @@ class PlutoMenuItem {
   bool get _hasChildren => children != null && children!.length > 0;
 
   PlutoMenuItem? _parent;
+
+  bool get _isRootSubMenu => _parent == null;
 
   void _setParent() {
     if (!_hasChildren) return;

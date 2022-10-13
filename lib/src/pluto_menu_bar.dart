@@ -57,7 +57,14 @@ class PlutoMenuBar extends StatefulWidget {
   /// [TextStyle] of Menu title.
   final TextStyle textStyle;
 
+  /// Padding of the main menu.
   final EdgeInsets menuPadding;
+
+  /// Determines the mode in which the submenu is opened.
+  ///
+  /// [PlutoMenuBarMode.tap] Tap to open a submenu.
+  /// [PlutoMenuBarMode.hover] Opens a submenu by hovering the mouse.
+  final PlutoMenuBarMode mode;
 
   PlutoMenuBar({
     required this.menus,
@@ -78,6 +85,7 @@ class PlutoMenuBar extends StatefulWidget {
       fontSize: 14,
     ),
     this.menuPadding = const EdgeInsets.symmetric(horizontal: 15),
+    this.mode = PlutoMenuBarMode.tap,
   }) : assert(menus.length > 0);
 
   @override
@@ -126,6 +134,7 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                   indicatorColor: widget.indicatorColor,
                   textStyle: widget.textStyle,
                   offset: widget.menuPadding.left,
+                  mode: widget.mode,
                 );
               },
             ),
@@ -134,4 +143,12 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
       },
     );
   }
+}
+
+enum PlutoMenuBarMode {
+  hover,
+  tap;
+
+  bool get isHover => this == PlutoMenuBarMode.hover;
+  bool get isTap => this == PlutoMenuBarMode.tap;
 }
