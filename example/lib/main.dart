@@ -187,44 +187,47 @@ class PlutoMenuBarDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 30),
-        const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.hover,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.hover,
-          backgroundColor: Colors.deepOrange,
-          activatedColor: Colors.white,
-          indicatorColor: Colors.deepOrange,
-          textStyle: const TextStyle(color: Colors.white),
-          menuIconColor: Colors.white,
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.tap,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          backgroundColor: Colors.deepOrange,
-          activatedColor: Colors.white,
-          indicatorColor: Colors.deepOrange,
-          textStyle: const TextStyle(color: Colors.white),
-          menuIconColor: Colors.white,
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 30),
+          const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
+          const Text('Works normally in an environment with a mouse.'),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.hover,
+            menus: getMenus(context),
+          ),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.hover,
+            backgroundColor: Colors.deepOrange,
+            activatedColor: Colors.white,
+            indicatorColor: Colors.deepOrange,
+            textStyle: const TextStyle(color: Colors.white),
+            menuIconColor: Colors.white,
+            moreIconColor: Colors.white,
+            menus: getMenus(context),
+          ),
+          const SizedBox(height: 30),
+          const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.tap,
+            menus: getMenus(context),
+          ),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            backgroundColor: Colors.deepOrange,
+            activatedColor: Colors.white,
+            indicatorColor: Colors.deepOrange,
+            textStyle: const TextStyle(color: Colors.white),
+            menuIconColor: Colors.white,
+            moreIconColor: Colors.white,
+            menus: getMenus(context),
+          ),
+        ],
+      ),
     );
   }
 }

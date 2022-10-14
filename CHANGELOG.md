@@ -1,3 +1,7 @@
+## [2.0.1] - 2022. 10. 15
+
+* Fix submenu position bug.
+
 ## [2.0.0] - 2022. 10. 13
 
 * Add hover-open mode.

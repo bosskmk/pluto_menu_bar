@@ -106,6 +106,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
   ) {
     if (_disposed) return;
     if (_popups.containsKey(menu._key.toString())) return;
+    if (!menu._hasContext) return;
 
     final RenderBox overlay =
         Overlay.of(context)!.context.findRenderObject() as RenderBox;
@@ -189,7 +190,12 @@ class _MenuWidgetState extends State<_MenuWidget> {
 
           menuItemWidget = TextButton(
             onPressed: item.onTap,
-            style: TextButton.styleFrom(textStyle: widget.textStyle),
+            style: TextButton.styleFrom(
+              textStyle: widget.textStyle,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
             child: Padding(padding: padding, child: menuItemWidget),
           );
 
@@ -257,9 +263,8 @@ class _MenuWidgetState extends State<_MenuWidget> {
     BuildContext context,
     List<PlutoMenuItem> menuItems,
   ) {
-    if (_disposed) {
-      return;
-    }
+    if (_disposed) return;
+    if (!menu._hasContext) return;
 
     final items = [...menuItems];
 

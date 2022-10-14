@@ -109,6 +109,8 @@ class PlutoMenuItem {
 
   bool _isBack = false;
 
+  bool get _hasContext => _key.currentContext != null;
+
   Offset get _position {
     if (_key.currentContext == null) return Offset.zero;
 
