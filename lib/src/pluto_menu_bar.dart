@@ -1,4 +1,3 @@
-// ignore_for_file: unused_element
 part of pluto_menu_bar;
 
 class PlutoMenuBar extends StatefulWidget {
@@ -97,46 +96,48 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (ctx, size) {
-        return Container(
+        return SizedBox(
           width: size.maxWidth,
           height: widget.height,
-          decoration: BoxDecoration(
-            color: widget.backgroundColor,
-            border: Border(
-              top: BorderSide(color: widget.borderColor),
-              bottom: BorderSide(color: widget.borderColor),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: widget.backgroundColor,
+              border: Border(
+                top: BorderSide(color: widget.borderColor),
+                bottom: BorderSide(color: widget.borderColor),
+              ),
             ),
-          ),
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse,
-              },
-            ),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: widget.menus.length,
-              itemBuilder: (_, index) {
-                return _MenuWidget(
-                  widget.menus[index],
-                  goBackButtonText: widget.goBackButtonText,
-                  showBackButton: widget.showBackButton,
-                  height: widget.height,
-                  padding: widget.menuPadding,
-                  backgroundColor: widget.backgroundColor,
-                  menuIconColor: widget.menuIconColor,
-                  menuIconSize: widget.menuIconSize,
-                  moreIconColor: widget.moreIconColor,
-                  iconScale: widget.iconScale,
-                  unselectedColor: widget.unselectedColor,
-                  activatedColor: widget.activatedColor,
-                  indicatorColor: widget.indicatorColor,
-                  textStyle: widget.textStyle,
-                  offset: widget.menuPadding.left,
-                  mode: widget.mode,
-                );
-              },
+            child: ScrollConfiguration(
+              behavior: ScrollConfiguration.of(context).copyWith(
+                dragDevices: {
+                  PointerDeviceKind.touch,
+                  PointerDeviceKind.mouse,
+                },
+              ),
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.menus.length,
+                itemBuilder: (_, index) {
+                  return _MenuWidget(
+                    widget.menus[index],
+                    goBackButtonText: widget.goBackButtonText,
+                    showBackButton: widget.showBackButton,
+                    height: widget.height,
+                    padding: widget.menuPadding,
+                    backgroundColor: widget.backgroundColor,
+                    menuIconColor: widget.menuIconColor,
+                    menuIconSize: widget.menuIconSize,
+                    moreIconColor: widget.moreIconColor,
+                    iconScale: widget.iconScale,
+                    unselectedColor: widget.unselectedColor,
+                    activatedColor: widget.activatedColor,
+                    indicatorColor: widget.indicatorColor,
+                    textStyle: widget.textStyle,
+                    offset: widget.menuPadding.left,
+                    mode: widget.mode,
+                  );
+                },
+              ),
             ),
           ),
         );

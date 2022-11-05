@@ -1,17 +1,5 @@
 part of pluto_menu_bar;
 
-enum PlutoMenuItemType {
-  button,
-  checkbox,
-  radio,
-  divider;
-
-  bool get isButton => this == PlutoMenuItemType.button;
-  bool get isCheckbox => this == PlutoMenuItemType.checkbox;
-  bool get isRadio => this == PlutoMenuItemType.radio;
-  bool get isDivider => this == PlutoMenuItemType.divider;
-}
-
 class PlutoMenuItem {
   /// Menu title
   final String title;
@@ -32,7 +20,8 @@ class PlutoMenuItem {
     this.enable = true,
     this.onTap,
     this.children,
-  }) : _key = GlobalKey() {
+  })  : _key = GlobalKey(),
+        _isBack = false {
     _setParent();
   }
 
@@ -103,11 +92,21 @@ class PlutoMenuItem {
         _key = GlobalKey(),
         _isBack = true;
 
-  PlutoMenuItemType get type => PlutoMenuItemType.button;
-
   final GlobalKey _key;
 
-  bool _isBack = false;
+  final bool _isBack;
+
+  PlutoMenuItem? _parent;
+
+  GlobalKey get key => _key;
+
+  PlutoMenuItemType get type => PlutoMenuItemType.button;
+
+  bool get isBack => _isBack;
+
+  bool get hasChildren => children != null && children!.length > 0;
+
+  bool get _isRootSubMenu => _parent == null;
 
   bool get _hasContext => _key.currentContext != null;
 
@@ -127,14 +126,8 @@ class PlutoMenuItem {
     return box.size;
   }
 
-  bool get _hasChildren => children != null && children!.length > 0;
-
-  PlutoMenuItem? _parent;
-
-  bool get _isRootSubMenu => _parent == null;
-
   void _setParent() {
-    if (!_hasChildren) return;
+    if (!hasChildren) return;
     children!.forEach((e) => e._parent = this);
   }
 }
@@ -200,4 +193,16 @@ class PlutoMenuItemDivider extends PlutoMenuItem {
   final double? endIndent;
 
   final double? thickness;
+}
+
+enum PlutoMenuItemType {
+  button,
+  checkbox,
+  radio,
+  divider;
+
+  bool get isButton => this == PlutoMenuItemType.button;
+  bool get isCheckbox => this == PlutoMenuItemType.checkbox;
+  bool get isRadio => this == PlutoMenuItemType.radio;
+  bool get isDivider => this == PlutoMenuItemType.divider;
 }

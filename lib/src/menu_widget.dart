@@ -25,9 +25,9 @@ class _MenuWidget extends StatefulWidget {
 
   final Color indicatorColor;
 
-  final EdgeInsets? padding;
+  final EdgeInsets padding;
 
-  final TextStyle? textStyle;
+  final TextStyle textStyle;
 
   final double offset;
 
@@ -46,8 +46,11 @@ class _MenuWidget extends StatefulWidget {
     this.unselectedColor = Colors.black12,
     this.activatedColor = Colors.blue,
     this.indicatorColor = Colors.white,
-    this.padding,
-    this.textStyle,
+    this.padding = const EdgeInsets.symmetric(horizontal: 15),
+    this.textStyle = const TextStyle(
+      color: Colors.black,
+      fontSize: 14,
+    ),
     this.offset = 0,
     this.mode = PlutoMenuBarMode.tap,
   }) : super(key: menu._key);
@@ -75,7 +78,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
   }
 
   void openMenu(PlutoMenuItem menu) async {
-    if (widget.menu._hasChildren) {
+    if (widget.menu.hasChildren) {
       if (widget.menu.onTap != null) {
         widget.menu.onTap!();
       }
@@ -86,7 +89,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
   }
 
   void showSubMenu(PlutoMenuItem menu) async {
-    if (!menu._hasChildren) return;
+    if (!menu.hasChildren) return;
     if (_disposed) return;
 
     switch (widget.mode) {
@@ -159,33 +162,26 @@ class _MenuWidgetState extends State<_MenuWidget> {
 
     _popups[menu._key.toString()] = OverlayEntry(
       builder: (_) {
-        Widget buildItemWidget(item) {
-          EdgeInsets padding = EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 10,
+        Widget buildItemWidget(PlutoMenuItem item) {
+          Widget menuItemWidget = _ItemWidget(
+            menu: item,
+            iconScale: widget.iconScale,
+            unselectedColor: widget.unselectedColor,
+            activatedColor: widget.activatedColor,
+            indicatorColor: widget.indicatorColor,
+            menuIconColor: widget.menuIconColor,
+            moreIconColor: widget.moreIconColor,
+            menuIconSize: widget.menuIconSize,
+            textStyle: widget.textStyle,
           );
 
-          late Widget menuItemWidget;
+          if (item.type.isDivider) return menuItemWidget;
 
-          switch (item.type) {
-            case PlutoMenuItemType.button:
-              menuItemWidget = _buildButtonItem(item);
-              break;
-            case PlutoMenuItemType.checkbox:
-              menuItemWidget = _buildCheckboxItem(item);
-              padding = EdgeInsets.symmetric(vertical: 10);
-              break;
-            case PlutoMenuItemType.radio:
-              menuItemWidget = _buildRadioItem(item);
-              padding = EdgeInsets.symmetric(vertical: 10);
-              break;
-            case PlutoMenuItemType.divider:
-              menuItemWidget = _buildDividerItem(item);
-              break;
-          }
-
-          if (item.type.isDivider) {
-            return menuItemWidget;
+          EdgeInsets padding;
+          if (item.type.isCheckbox || item.type.isRadio) {
+            padding = EdgeInsets.symmetric(vertical: 10);
+          } else {
+            padding = EdgeInsets.symmetric(horizontal: 15, vertical: 10);
           }
 
           menuItemWidget = TextButton(
@@ -199,7 +195,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
             child: Padding(padding: padding, child: menuItemWidget),
           );
 
-          if (!item._hasChildren) return menuItemWidget;
+          if (!item.hasChildren) return menuItemWidget;
 
           onHoverItem(_) {
             _addHoveredPopupKey(item);
@@ -292,25 +288,23 @@ class _MenuWidgetState extends State<_MenuWidget> {
         position.dy + overlay.size.height,
       ),
       items: items.map((menu) {
-        Widget menuItem;
+        Widget menuItem = _ItemWidget(
+          menu: menu,
+          iconScale: widget.iconScale,
+          unselectedColor: widget.unselectedColor,
+          activatedColor: widget.activatedColor,
+          indicatorColor: widget.indicatorColor,
+          menuIconColor: widget.menuIconColor,
+          moreIconColor: widget.moreIconColor,
+          menuIconSize: widget.menuIconSize,
+          textStyle: widget.textStyle,
+        );
+
         double height = kMinInteractiveDimension;
         EdgeInsets? padding;
-
-        switch (menu.type) {
-          case PlutoMenuItemType.button:
-            menuItem = _buildButtonItem(menu);
-            break;
-          case PlutoMenuItemType.checkbox:
-            menuItem = _buildCheckboxItem(menu);
-            break;
-          case PlutoMenuItemType.radio:
-            menuItem = _buildRadioItem(menu);
-            break;
-          case PlutoMenuItemType.divider:
-            menuItem = _buildDividerItem(menu as PlutoMenuItemDivider);
-            height = menu.height;
-            padding = EdgeInsets.only(left: 0, right: 0);
-            break;
+        if (menu.type.isDivider) {
+          height = (menu as PlutoMenuItemDivider).height;
+          padding = EdgeInsets.only(left: 0, right: 0);
         }
 
         return PopupMenuItem<PlutoMenuItem>(
@@ -320,14 +314,14 @@ class _MenuWidgetState extends State<_MenuWidget> {
           height: height,
           padding: padding,
         );
-      }).toList(),
+      }).toList(growable: false),
       elevation: 2.0,
       color: widget.backgroundColor,
       useRootNavigator: true,
     ).then((selectedMenu) async {
       if (selectedMenu == null) return;
 
-      if (selectedMenu._hasChildren) {
+      if (selectedMenu.hasChildren) {
         _showTappedPopupMenu(selectedMenu, context, selectedMenu.children!);
         return;
       }
@@ -336,153 +330,6 @@ class _MenuWidgetState extends State<_MenuWidget> {
         selectedMenu.onTap!();
       }
     });
-  }
-
-  Widget _buildButtonItem(PlutoMenuItem _menu) {
-    return Row(
-      key: _menu._key,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        if (_menu.icon != null) ...[
-          Icon(
-            _menu.icon,
-            color: widget.menuIconColor,
-            size: widget.menuIconSize,
-          ),
-          SizedBox(width: 5),
-        ],
-        Expanded(
-          child: Text(
-            _menu.title,
-            style: widget.textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.visible,
-          ),
-        ),
-        if (_menu._hasChildren && !_menu._isBack)
-          Icon(Icons.arrow_right, color: widget.moreIconColor),
-      ],
-    );
-  }
-
-  Widget _buildCheckboxItem(PlutoMenuItem _menu) {
-    final checkboxItem = _menu as PlutoMenuItemCheckbox;
-    bool? checked = checkboxItem.initialCheckValue;
-
-    return Row(
-      key: _menu._key,
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        StatefulBuilder(
-          builder: (_, setState) {
-            onChanged(flag) {
-              updateCheckBox() {
-                checked = flag;
-                if (checkboxItem.onChanged == null) return;
-                checkboxItem.onChanged!(flag);
-              }
-
-              setState(updateCheckBox);
-            }
-
-            return Transform.scale(
-              scale: widget.iconScale,
-              child: Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: widget.unselectedColor,
-                ),
-                child: Checkbox(
-                  value: checked,
-                  activeColor: widget.activatedColor,
-                  checkColor: widget.indicatorColor,
-                  visualDensity: VisualDensity(vertical: -4),
-                  onChanged: onChanged,
-                ),
-              ),
-            );
-          },
-        ),
-        Expanded(
-          child: Text(
-            _menu.title,
-            style: widget.textStyle,
-            maxLines: 1,
-            overflow: TextOverflow.visible,
-          ),
-        ),
-        if (_menu._hasChildren && !_menu._isBack)
-          Icon(Icons.arrow_right, color: widget.moreIconColor),
-      ],
-    );
-  }
-
-  Widget _buildRadioItem(PlutoMenuItem _menu) {
-    final radioItem = _menu as PlutoMenuItemRadio;
-    Object? selectedItem = radioItem.initialRadioValue;
-
-    return StatefulBuilder(
-      key: _menu._key,
-      builder: (_, setState) {
-        onChanged(changed) {
-          setState(() {
-            selectedItem = changed;
-
-            if (radioItem.onChanged != null) {
-              radioItem.onChanged!(changed);
-            }
-          });
-        }
-
-        buildChild(e) {
-          final String title = radioItem.getTitle == null
-              ? e.toString()
-              : radioItem.getTitle!(e);
-
-          return ListTile(
-            title: Text(title, style: widget.textStyle),
-            contentPadding: EdgeInsets.zero,
-            horizontalTitleGap: 0,
-            leading: Transform.scale(
-              scale: widget.iconScale,
-              child: Theme(
-                data: ThemeData(
-                  unselectedWidgetColor: widget.unselectedColor,
-                ),
-                child: Radio<Object>(
-                  value: e,
-                  groupValue: selectedItem,
-                  activeColor: widget.activatedColor,
-                  visualDensity: VisualDensity(vertical: -4),
-                  onChanged: onChanged,
-                ),
-              ),
-            ),
-          );
-        }
-
-        final children = radioItem.radioItems
-            .map<Widget>(buildChild)
-            .toList(growable: false);
-
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children,
-        );
-      },
-    );
-  }
-
-  Widget _buildDividerItem(PlutoMenuItem _menu) {
-    final dividerItem = _menu as PlutoMenuItemDivider;
-
-    return Divider(
-      color: dividerItem.color,
-      indent: dividerItem.indent,
-      endIndent: dividerItem.endIndent,
-      thickness: dividerItem.thickness,
-    );
   }
 
   void _addHoveredPopupKey(PlutoMenuItem menu, {bool addSelf = true}) {
@@ -543,7 +390,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
       onHover(event) {
         _hoveredPopupKey.clear();
 
-        if (!widget.menu._hasChildren) return;
+        if (!widget.menu.hasChildren) return;
 
         _addHoveredPopupKey(widget.menu, addSelf: false);
 
@@ -559,10 +406,84 @@ class _MenuWidgetState extends State<_MenuWidget> {
       );
     }
 
-    return Container(
+    return SizedBox(
       height: widget.height,
-      padding: widget.padding,
-      child: menuWidget,
+      child: Padding(
+        padding: widget.padding,
+        child: menuWidget,
+      ),
     );
+  }
+}
+
+class _ItemWidget extends StatelessWidget {
+  const _ItemWidget({
+    required this.menu,
+    required this.iconScale,
+    required this.unselectedColor,
+    required this.activatedColor,
+    required this.indicatorColor,
+    required this.menuIconColor,
+    required this.moreIconColor,
+    required this.menuIconSize,
+    required this.textStyle,
+  });
+
+  final PlutoMenuItem menu;
+
+  final double iconScale;
+
+  final Color unselectedColor;
+
+  final Color activatedColor;
+
+  final Color indicatorColor;
+
+  final Color menuIconColor;
+
+  final Color moreIconColor;
+
+  final double menuIconSize;
+
+  final TextStyle textStyle;
+
+  @override
+  Widget build(BuildContext context) {
+    switch (menu.type) {
+      case PlutoMenuItemType.button:
+        return ButtonItemWidget(
+          menu: menu,
+          menuIconColor: menuIconColor,
+          moreIconColor: moreIconColor,
+          menuIconSize: menuIconSize,
+          textStyle: textStyle,
+        );
+      case PlutoMenuItemType.checkbox:
+        return CheckboxItemWidget(
+          menu: menu as PlutoMenuItemCheckbox,
+          iconScale: iconScale,
+          unselectedColor: unselectedColor,
+          activatedColor: menuIconColor,
+          indicatorColor: indicatorColor,
+          moreIconColor: moreIconColor,
+          textStyle: textStyle,
+        );
+      case PlutoMenuItemType.radio:
+        return RadioItemWidget(
+          menu: menu as PlutoMenuItemRadio,
+          iconScale: iconScale,
+          activatedColor: activatedColor,
+          unselectedColor: unselectedColor,
+          textStyle: textStyle,
+        );
+      case PlutoMenuItemType.divider:
+        final dividerItem = menu as PlutoMenuItemDivider;
+        return Divider(
+          color: dividerItem.color,
+          indent: dividerItem.indent,
+          endIndent: dividerItem.endIndent,
+          thickness: dividerItem.thickness,
+        );
+    }
   }
 }
