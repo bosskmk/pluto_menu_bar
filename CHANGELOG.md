@@ -1,3 +1,8 @@
+## [2.0.2] - 2022. 11. 25
+
+* Add PlutoMenuItemWidget.  
+  https://pluto.weblaze.dev/plutomenuitemwidget
+
 ## [2.0.1] - 2022. 10. 15
 
 * Fix submenu position bug.
