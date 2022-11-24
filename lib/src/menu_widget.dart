@@ -476,6 +476,8 @@ class _ItemWidget extends StatelessWidget {
           unselectedColor: unselectedColor,
           textStyle: textStyle,
         );
+      case PlutoMenuItemType.widget:
+        return (menu as PlutoMenuItemWidget).widget;
       case PlutoMenuItemType.divider:
         final dividerItem = menu as PlutoMenuItemDivider;
         return Divider(

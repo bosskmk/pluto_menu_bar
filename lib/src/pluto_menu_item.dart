@@ -14,6 +14,7 @@ class PlutoMenuItem {
   /// Passing [PlutoMenuItem] to a [List] creates a sub-menu.
   final List<PlutoMenuItem>? children;
 
+  /// Button type menu item.
   PlutoMenuItem({
     required this.title,
     this.icon,
@@ -25,6 +26,7 @@ class PlutoMenuItem {
     _setParent();
   }
 
+  /// A menu item of type checkbox.
   factory PlutoMenuItem.checkbox({
     required String title,
     IconData? icon,
@@ -45,7 +47,8 @@ class PlutoMenuItem {
     );
   }
 
-  static PlutoMenuItem radio({
+  /// A menu item of type radio button.
+  factory PlutoMenuItem.radio({
     required String title,
     IconData? icon,
     bool enable = false,
@@ -67,7 +70,21 @@ class PlutoMenuItem {
     );
   }
 
-  static PlutoMenuItem divider({
+  /// A menu item of type Widget.
+  factory PlutoMenuItem.widget({
+    required Widget widget,
+    bool enable = false,
+    void Function()? onTap,
+  }) {
+    return PlutoMenuItemWidget(
+      widget: widget,
+      enable: enable,
+      onTap: onTap,
+    );
+  }
+
+  /// A menu item of type Divider.
+  factory PlutoMenuItem.divider({
     double height = 16.0,
     Color? color,
     double? indent,
@@ -173,6 +190,18 @@ class PlutoMenuItemRadio extends PlutoMenuItem {
   final List<Object> radioItems;
 }
 
+class PlutoMenuItemWidget extends PlutoMenuItem {
+  PlutoMenuItemWidget({
+    required this.widget,
+    super.enable = false,
+    super.onTap,
+  }) : super(title: '_widget');
+
+  PlutoMenuItemType get type => PlutoMenuItemType.widget;
+
+  final Widget widget;
+}
+
 class PlutoMenuItemDivider extends PlutoMenuItem {
   PlutoMenuItemDivider({
     this.height = 16.0,
@@ -199,10 +228,12 @@ enum PlutoMenuItemType {
   button,
   checkbox,
   radio,
+  widget,
   divider;
 
   bool get isButton => this == PlutoMenuItemType.button;
   bool get isCheckbox => this == PlutoMenuItemType.checkbox;
   bool get isRadio => this == PlutoMenuItemType.radio;
+  bool get isWidget => this == PlutoMenuItemType.widget;
   bool get isDivider => this == PlutoMenuItemType.divider;
 }
