@@ -5,5 +5,7 @@
 /example/windows
 /example/linux
 /example/build
+/example/test
 /test
 pubspec.lock
+/build
