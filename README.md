@@ -49,10 +49,33 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PlutoMenuBarDemo extends StatelessWidget {
+class PlutoMenuBarDemo extends StatefulWidget {
   const PlutoMenuBarDemo({
     super.key,
   });
+
+  @override
+  State<PlutoMenuBarDemo> createState() => _PlutoMenuBarDemoState();
+}
+
+class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
+  late final List<PlutoMenuItem> whiteHoverMenus;
+
+  late final List<PlutoMenuItem> orangeHoverMenus;
+
+  late final List<PlutoMenuItem> whiteTapMenus;
+
+  late final List<PlutoMenuItem> orangeTapMenus;
+
+  @override
+  void initState() {
+    super.initState();
+
+    whiteHoverMenus = _makeMenus(context);
+    orangeHoverMenus = _makeMenus(context);
+    whiteTapMenus = _makeMenus(context);
+    orangeTapMenus = _makeMenus(context);
+  }
 
   void message(context, String text) {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
@@ -64,7 +87,7 @@ class PlutoMenuBarDemo extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  List<PlutoMenuItem> getMenus(BuildContext context) {
+  List<PlutoMenuItem> _makeMenus(BuildContext context) {
     return [
       PlutoMenuItem(
         title: 'Menu 1',
@@ -212,44 +235,124 @@ class PlutoMenuBarDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        const SizedBox(height: 30),
-        const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.hover,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.hover,
-          backgroundColor: Colors.deepOrange,
-          activatedColor: Colors.white,
-          indicatorColor: Colors.deepOrange,
-          textStyle: const TextStyle(color: Colors.white),
-          menuIconColor: Colors.white,
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          mode: PlutoMenuBarMode.tap,
-          menus: getMenus(context),
-        ),
-        const SizedBox(height: 30),
-        PlutoMenuBar(
-          backgroundColor: Colors.deepOrange,
-          activatedColor: Colors.white,
-          indicatorColor: Colors.deepOrange,
-          textStyle: const TextStyle(color: Colors.white),
-          menuIconColor: Colors.white,
-          moreIconColor: Colors.white,
-          menus: getMenus(context),
-        ),
-      ],
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          const SizedBox(height: 30),
+          const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
+          const Text('Works normally in an environment with a mouse.'),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.hover,
+            menus: whiteHoverMenus,
+          ),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.hover,
+            backgroundColor: Colors.deepOrange,
+            itemStyle: const PlutoMenuItemStyle(
+              activatedColor: Colors.white,
+              indicatorColor: Colors.deepOrange,
+              textStyle: TextStyle(color: Colors.white),
+              iconColor: Colors.white,
+              moreIconColor: Colors.white,
+            ),
+            menus: orangeHoverMenus,
+          ),
+          const SizedBox(height: 30),
+          const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.tap,
+            menus: whiteTapMenus,
+          ),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            backgroundColor: Colors.deepOrange,
+            itemStyle: const PlutoMenuItemStyle(
+              activatedColor: Colors.white,
+              indicatorColor: Colors.deepOrange,
+              textStyle: TextStyle(color: Colors.white),
+              iconColor: Colors.white,
+              moreIconColor: Colors.white,
+            ),
+            menus: orangeTapMenus,
+          ),
+          const SizedBox(height: 30),
+          const Text('Selected top menu', style: TextStyle(fontSize: 30)),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.tap,
+            itemStyle: const PlutoMenuItemStyle(
+              enableSelectedTopMenu: true,
+            ),
+            menus: [
+              PlutoMenuItem(
+                title: 'Select1',
+                id: 'Select1',
+                onTap: () => message(context, 'Select1'),
+              ),
+              PlutoMenuItem(
+                title: 'Select2',
+                id: 'Select2',
+                onTap: () => message(context, 'Select2'),
+              ),
+              PlutoMenuItem(
+                title: 'Select3',
+                id: 'Select3',
+                onTap: () => message(context, 'Select3'),
+              ),
+              PlutoMenuItem(
+                title: 'Select4',
+                id: 'Select4',
+                onTap: () => message(context, 'Select4'),
+              ),
+              PlutoMenuItem(
+                title: 'Select5',
+                id: 'Select5',
+                onTap: () => message(context, 'Select5'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 30),
+          const Text('Toggled top menu', style: TextStyle(fontSize: 30)),
+          const SizedBox(height: 30),
+          PlutoMenuBar(
+            mode: PlutoMenuBarMode.tap,
+            itemStyle: PlutoMenuItemStyle(
+              enableSelectedTopMenu: true,
+              selectedTopMenuResolver: (menu, enabled) {
+                final description = enabled == true ? 'disabled' : 'enabled';
+                message(context, '${menu.title} $description');
+                return enabled == true ? null : true;
+              },
+            ),
+            menus: [
+              PlutoMenuItem(
+                title: 'Toggle1',
+                id: 'Toggle1',
+              ),
+              PlutoMenuItem(
+                title: 'Toggle2',
+                id: 'Toggle2',
+              ),
+              PlutoMenuItem(
+                title: 'Toggle3',
+                id: 'Toggle3',
+              ),
+              PlutoMenuItem(
+                title: 'Toggle4',
+                id: 'Toggle4',
+              ),
+              PlutoMenuItem(
+                title: 'Toggle5',
+                id: 'Toggle5',
+              ),
+            ],
+          ),
+          const SizedBox(height: 50),
+        ],
+      ),
     );
   }
 }
