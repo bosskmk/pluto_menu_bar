@@ -20,6 +20,7 @@ void main() {
     String goBackButtonText = 'Go back',
     bool showBackButton = true,
     double height = 45,
+    PlutoMenuItemStyle? itemStyle,
     PlutoMenuBarMode mode = PlutoMenuBarMode.tap,
   }) async {
     await tester.pumpWidget(MaterialApp(
@@ -29,11 +30,284 @@ void main() {
           goBackButtonText: goBackButtonText,
           showBackButton: showBackButton,
           height: height,
+          itemStyle: itemStyle ?? const PlutoMenuItemStyle(),
           mode: mode,
         ),
       ),
     ));
   }
+
+  group('itemStyle', () {
+    testWidgets('최초 1번 메뉴가 selected 되어야 한다.', (tester) async {
+      final menus = [
+        PlutoMenuItem(title: 'menu1', id: 'menu1'),
+        PlutoMenuItem(title: 'menu2', id: 'menu2'),
+        PlutoMenuItem(title: 'menu3', id: 'menu3'),
+      ];
+
+      final itemStyle = PlutoMenuItemStyle(
+        enableSelectedTopMenu: true,
+      );
+
+      await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+      final menuWidget = find.byKey(GlobalObjectKey('menu1'));
+      final menuTextWidget = find
+          .descendant(
+            of: menuWidget,
+            matching: find.byType(Text),
+          )
+          .evaluate()
+          .first
+          .widget as Text;
+
+      expect(
+        menuTextWidget.style?.color,
+        itemStyle.selectedTopMenuTextStyle.color,
+      );
+    });
+
+    testWidgets(
+      'initialSelectedTopMenuIndex 이 2 면, '
+      '최초 3번 메뉴가 selected 되어야 한다.',
+      (tester) async {
+        final menus = [
+          PlutoMenuItem(title: 'menu1', id: 'menu1'),
+          PlutoMenuItem(title: 'menu2', id: 'menu2'),
+          PlutoMenuItem(title: 'menu3', id: 'menu3'),
+        ];
+
+        final itemStyle = PlutoMenuItemStyle(
+          enableSelectedTopMenu: true,
+          initialSelectedTopMenuIndex: 2,
+        );
+
+        await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+        final menuWidget = find.byKey(GlobalObjectKey('menu3'));
+        final menuTextWidget = find
+            .descendant(
+              of: menuWidget,
+              matching: find.byType(Text),
+            )
+            .evaluate()
+            .first
+            .widget as Text;
+
+        expect(
+          menuTextWidget.style?.color,
+          itemStyle.selectedTopMenuTextStyle.color,
+        );
+      },
+    );
+
+    testWidgets('최초 1번 메뉴의 icon 이 selected 되어야 한다.', (tester) async {
+      final menus = [
+        PlutoMenuItem(title: 'menu1', id: 'menu1', icon: Icons.menu),
+        PlutoMenuItem(title: 'menu2', id: 'menu2', icon: Icons.menu),
+        PlutoMenuItem(title: 'menu3', id: 'menu3', icon: Icons.menu),
+      ];
+
+      final itemStyle = PlutoMenuItemStyle(
+        enableSelectedTopMenu: true,
+      );
+
+      await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+      final menuWidget = find.byKey(GlobalObjectKey('menu1'));
+      final menuIconWidget = find
+          .descendant(
+            of: menuWidget,
+            matching: find.byType(Icon),
+          )
+          .evaluate()
+          .first
+          .widget as Icon;
+
+      expect(
+        menuIconWidget.color,
+        itemStyle.selectedTopMenuIconColor,
+      );
+    });
+
+    testWidgets(
+      '최초 1번 메뉴가 selected 된 상태에서, '
+      'selectedTopMenuResolver 가 null 을 리턴하면 메뉴1을 탭하면 selected 가 해제 되어야 한다.',
+      (tester) async {
+        final menus = [
+          PlutoMenuItem(title: 'menu1', id: 'menu1'),
+          PlutoMenuItem(title: 'menu2', id: 'menu2'),
+          PlutoMenuItem(title: 'menu3', id: 'menu3'),
+        ];
+
+        final itemStyle = PlutoMenuItemStyle(
+          enableSelectedTopMenu: true,
+          selectedTopMenuResolver: (menu, enabled) => null,
+        );
+
+        await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+        final menuWidget = find.byKey(GlobalObjectKey('menu1'));
+
+        await tester.tap(menuWidget);
+        await tester.pump();
+
+        final menuTextWidget = find
+            .descendant(
+              of: menuWidget,
+              matching: find.byType(Text),
+            )
+            .evaluate()
+            .first
+            .widget as Text;
+
+        expect(
+          menuTextWidget.style?.color,
+          itemStyle.textStyle.color,
+        );
+      },
+    );
+
+    testWidgets('2번 메뉴를 탭하면 2번 메뉴가 selected 되어야 한다.', (tester) async {
+      final menus = [
+        PlutoMenuItem(title: 'menu1', id: 'menu1'),
+        PlutoMenuItem(title: 'menu2', id: 'menu2'),
+        PlutoMenuItem(title: 'menu3', id: 'menu3'),
+      ];
+
+      final itemStyle = PlutoMenuItemStyle(
+        enableSelectedTopMenu: true,
+      );
+
+      await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+      final menuWidget = find.byKey(GlobalObjectKey('menu2'));
+
+      await tester.tap(menuWidget);
+      await tester.pump();
+
+      final menuTextWidget = find
+          .descendant(
+            of: menuWidget,
+            matching: find.byType(Text),
+          )
+          .evaluate()
+          .first
+          .widget as Text;
+
+      expect(
+        menuTextWidget.style?.color,
+        itemStyle.selectedTopMenuTextStyle.color,
+      );
+    });
+
+    testWidgets('2번 메뉴를 탭하면 2번 메뉴의 icon 이 selected 되어야 한다.', (tester) async {
+      final menus = [
+        PlutoMenuItem(title: 'menu1', id: 'menu1', icon: Icons.menu),
+        PlutoMenuItem(title: 'menu2', id: 'menu2', icon: Icons.menu),
+        PlutoMenuItem(title: 'menu3', id: 'menu3', icon: Icons.menu),
+      ];
+
+      final itemStyle = PlutoMenuItemStyle(
+        enableSelectedTopMenu: true,
+      );
+
+      await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+      final menuWidget = find.byKey(GlobalObjectKey('menu2'));
+
+      await tester.tap(menuWidget);
+      await tester.pump();
+
+      final menuIconWidget = find
+          .descendant(
+            of: menuWidget,
+            matching: find.byType(Icon),
+          )
+          .evaluate()
+          .first
+          .widget as Icon;
+
+      expect(
+        menuIconWidget.color,
+        itemStyle.selectedTopMenuIconColor,
+      );
+    });
+
+    testWidgets(
+      'selectedTopMenuResolver 가 true 를 리턴하고 메뉴2를 탭하면 selected 되어야 한다.',
+      (tester) async {
+        final menus = [
+          PlutoMenuItem(title: 'menu1', id: 'menu1'),
+          PlutoMenuItem(title: 'menu2', id: 'menu2'),
+          PlutoMenuItem(title: 'menu3', id: 'menu3'),
+        ];
+
+        final itemStyle = PlutoMenuItemStyle(
+          enableSelectedTopMenu: true,
+          selectedTopMenuResolver: (menu, enabled) => true,
+        );
+
+        await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+        final menuWidget = find.byKey(GlobalObjectKey('menu2'));
+
+        await tester.tap(menuWidget);
+        await tester.pump();
+
+        final menuTextWidget = find
+            .descendant(
+              of: menuWidget,
+              matching: find.byType(Text),
+            )
+            .evaluate()
+            .first
+            .widget as Text;
+
+        expect(
+          menuTextWidget.style?.color,
+          itemStyle.selectedTopMenuTextStyle.color,
+        );
+      },
+    );
+
+    testWidgets(
+      'selectedTopMenuResolver 가 false 를 리턴하면 메뉴2를 탭해도 selected 되지 않아야 한다.',
+      (tester) async {
+        final menus = [
+          PlutoMenuItem(title: 'menu1', id: 'menu1'),
+          PlutoMenuItem(title: 'menu2', id: 'menu2'),
+          PlutoMenuItem(title: 'menu3', id: 'menu3'),
+        ];
+
+        final itemStyle = PlutoMenuItemStyle(
+          enableSelectedTopMenu: true,
+          selectedTopMenuResolver: (menu, enabled) => false,
+        );
+
+        await buildWidget(tester, menus: menus, itemStyle: itemStyle);
+
+        final menuWidget = find.byKey(GlobalObjectKey('menu2'));
+
+        await tester.tap(menuWidget);
+        await tester.pump();
+
+        final menuTextWidget = find
+            .descendant(
+              of: menuWidget,
+              matching: find.byType(Text),
+            )
+            .evaluate()
+            .first
+            .widget as Text;
+
+        expect(
+          menuTextWidget.style?.color,
+          itemStyle.textStyle.color,
+        );
+      },
+    );
+  });
 
   group('PlutoMenuBarMode.tap', () {
     final PlutoMenuBarMode mode = PlutoMenuBarMode.tap;
