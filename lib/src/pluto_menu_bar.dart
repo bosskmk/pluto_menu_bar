@@ -32,32 +32,8 @@ class PlutoMenuBar extends StatefulWidget {
   /// Border color. (default. 'black12')
   final Color borderColor;
 
-  /// menu icon color. (default. 'black54')
-  final Color menuIconColor;
-
-  /// menu icon size. (default. '20')
-  final double menuIconSize;
-
-  /// The scale of checkboxes and radio buttons.
-  final double iconScale;
-
-  /// The color of the unselected state of checkboxes and radio buttons.
-  final Color unselectedColor;
-
-  /// The color of the checkbox and radio button's selection state.
-  final Color activatedColor;
-
-  /// Check icon color for checkbox, radio button.
-  final Color indicatorColor;
-
-  /// more icon color. (default. 'black54')
-  final Color moreIconColor;
-
-  /// [TextStyle] of Menu title.
-  final TextStyle textStyle;
-
-  /// Padding of the main menu.
-  final EdgeInsets menuPadding;
+  /// {@macro pluto_menu_item_style}
+  final PlutoMenuItemStyle itemStyle;
 
   /// Determines the mode in which the submenu is opened.
   ///
@@ -72,18 +48,7 @@ class PlutoMenuBar extends StatefulWidget {
     this.height = 45,
     this.backgroundColor = Colors.white,
     this.borderColor = Colors.black12,
-    this.menuIconColor = Colors.black54,
-    this.menuIconSize = 20,
-    this.iconScale = 0.86,
-    this.unselectedColor = Colors.black26,
-    this.activatedColor = Colors.lightBlue,
-    this.indicatorColor = const Color(0xFFDCF5FF),
-    this.moreIconColor = Colors.black54,
-    this.textStyle = const TextStyle(
-      color: Colors.black,
-      fontSize: 14,
-    ),
-    this.menuPadding = const EdgeInsets.symmetric(horizontal: 15),
+    this.itemStyle = const PlutoMenuItemStyle(),
     this.mode = PlutoMenuBarMode.tap,
   }) : assert(menus.length > 0);
 
@@ -92,6 +57,40 @@ class PlutoMenuBar extends StatefulWidget {
 }
 
 class _PlutoMenuBarState extends State<PlutoMenuBar> {
+  GlobalKey<State<StatefulWidget>>? _selectedMenuKey;
+
+  bool get enabledSelectedTopMenu => widget.itemStyle.enableSelectedTopMenu;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _initSelectedTopMenu();
+  }
+
+  void _initSelectedTopMenu() {
+    if (!enabledSelectedTopMenu) return;
+    if (widget.itemStyle.initialSelectedTopMenuIndex == null) return;
+
+    int index = widget.itemStyle.initialSelectedTopMenuIndex!;
+
+    if (index < 0) {
+      index = 0;
+    } else if (index >= widget.menus.length) {
+      index = widget.menus.length - 1;
+    }
+
+    _selectedMenuKey = widget.menus[index].key;
+  }
+
+  void _setSelectedMenuKey(GlobalKey<State<StatefulWidget>>? key) {
+    if (!enabledSelectedTopMenu) return;
+
+    setState(() {
+      _selectedMenuKey = key;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -123,18 +122,11 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                     goBackButtonText: widget.goBackButtonText,
                     showBackButton: widget.showBackButton,
                     height: widget.height,
-                    padding: widget.menuPadding,
                     backgroundColor: widget.backgroundColor,
-                    menuIconColor: widget.menuIconColor,
-                    menuIconSize: widget.menuIconSize,
-                    moreIconColor: widget.moreIconColor,
-                    iconScale: widget.iconScale,
-                    unselectedColor: widget.unselectedColor,
-                    activatedColor: widget.activatedColor,
-                    indicatorColor: widget.indicatorColor,
-                    textStyle: widget.textStyle,
-                    offset: widget.menuPadding.left,
+                    style: widget.itemStyle,
                     mode: widget.mode,
+                    selectedMenuKey: _selectedMenuKey,
+                    setSelectedMenuKey: _setSelectedMenuKey,
                   );
                 },
               ),
@@ -144,6 +136,85 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
       },
     );
   }
+}
+
+/// {@template pluto_menu_item_style}
+/// Set the style of the menu.
+/// {@endtemplate}
+class PlutoMenuItemStyle {
+  const PlutoMenuItemStyle({
+    this.iconColor = Colors.black54,
+    this.iconSize = 20,
+    this.moreIconColor = Colors.black54,
+    this.iconScale = 0.86,
+    this.unselectedColor = Colors.black26,
+    this.activatedColor = Colors.lightBlue,
+    this.indicatorColor = const Color(0xFFDCF5FF),
+    this.padding = const EdgeInsets.symmetric(horizontal: 15),
+    this.textStyle = const TextStyle(
+      color: Colors.black,
+      fontSize: 14,
+    ),
+    this.enableSelectedTopMenu = false,
+    this.initialSelectedTopMenuIndex = 0,
+    this.selectedTopMenuIconColor = Colors.lightBlue,
+    this.selectedTopMenuTextStyle = const TextStyle(
+      color: Colors.lightBlue,
+      fontSize: 14,
+    ),
+    this.selectedTopMenuResolver,
+  });
+
+  final Color iconColor;
+
+  final double iconSize;
+
+  final Color moreIconColor;
+
+  final double iconScale;
+
+  final Color unselectedColor;
+
+  final Color activatedColor;
+
+  final Color indicatorColor;
+
+  final EdgeInsets padding;
+
+  final TextStyle textStyle;
+
+  /// When the top menu is tapped, the selected style is set.
+  final bool enableSelectedTopMenu;
+
+  /// Initial top-level menu selection index.
+  ///
+  /// If the value is set to null, no menu is selected.
+  ///
+  /// Valid only when [enableSelectedTopMenu] is set to true.
+  final int? initialSelectedTopMenuIndex;
+
+  /// The color of the icon in the selected state of the top menu.
+  ///
+  /// Valid only when [enableSelectedTopMenu] is set to true.
+  final Color selectedTopMenuIconColor;
+
+  /// The text style of the selected state of the top-level menu.
+  ///
+  /// Valid only when [enableSelectedTopMenu] is set to true.
+  final TextStyle selectedTopMenuTextStyle;
+
+  /// Determines whether the top-level menu is enabled or disabled when tapped.
+  ///
+  /// Valid only when [enableSelectedTopMenu] is set to true.
+  ///
+  /// ```dart
+  /// selectedTopMenuResolver: (menu, enabled) {
+  ///   final description = enabled == true ? 'disabled' : 'enabled';
+  ///   message(context, '${menu.title} $description');
+  ///   return enabled == true ? null : true;
+  /// },
+  /// ```
+  final bool? Function(PlutoMenuItem, bool?)? selectedTopMenuResolver;
 }
 
 enum PlutoMenuBarMode {

@@ -11,48 +11,25 @@ class _MenuWidget extends StatefulWidget {
 
   final Color backgroundColor;
 
-  final Color menuIconColor;
-
-  final double menuIconSize;
-
-  final Color moreIconColor;
-
-  final double iconScale;
-
-  final Color unselectedColor;
-
-  final Color activatedColor;
-
-  final Color indicatorColor;
-
-  final EdgeInsets padding;
-
-  final TextStyle textStyle;
-
-  final double offset;
+  final PlutoMenuItemStyle style;
 
   final PlutoMenuBarMode mode;
 
+  final GlobalKey<State<StatefulWidget>>? selectedMenuKey;
+
+  final void Function(GlobalKey<State<StatefulWidget>>? key)?
+      setSelectedMenuKey;
+
   _MenuWidget(
     this.menu, {
-    this.goBackButtonText = 'Go back',
-    this.showBackButton = true,
-    this.height = 45,
-    this.backgroundColor = Colors.white,
-    this.menuIconColor = Colors.black54,
-    this.menuIconSize = 20,
-    this.moreIconColor = Colors.black54,
-    this.iconScale = 0.86,
-    this.unselectedColor = Colors.black12,
-    this.activatedColor = Colors.blue,
-    this.indicatorColor = Colors.white,
-    this.padding = const EdgeInsets.symmetric(horizontal: 15),
-    this.textStyle = const TextStyle(
-      color: Colors.black,
-      fontSize: 14,
-    ),
-    this.offset = 0,
-    this.mode = PlutoMenuBarMode.tap,
+    required this.goBackButtonText,
+    required this.showBackButton,
+    required this.height,
+    required this.backgroundColor,
+    required this.style,
+    required this.mode,
+    this.selectedMenuKey,
+    this.setSelectedMenuKey,
   }) : super(key: menu._key);
 
   @override
@@ -66,6 +43,23 @@ class _MenuWidgetState extends State<_MenuWidget> {
 
   Set<String> _hoveredPopupKey = {};
 
+  bool get enabledSelectedTopMenu => widget.style.enableSelectedTopMenu;
+
+  bool get isSelectedMenu =>
+      enabledSelectedTopMenu && widget.selectedMenuKey == widget.menu.key;
+
+  Color get iconColor {
+    return isSelectedMenu
+        ? widget.style.selectedTopMenuIconColor
+        : widget.style.iconColor;
+  }
+
+  TextStyle get textStyle {
+    return isSelectedMenu
+        ? widget.style.selectedTopMenuTextStyle
+        : widget.style.textStyle;
+  }
+
   @override
   void dispose() {
     _disposed = true;
@@ -78,13 +72,12 @@ class _MenuWidgetState extends State<_MenuWidget> {
   }
 
   void openMenu(PlutoMenuItem menu) async {
-    if (widget.menu.hasChildren) {
-      if (widget.menu.onTap != null) {
-        widget.menu.onTap!();
-      }
-      showSubMenu(widget.menu);
-    } else if (widget.menu.onTap != null) {
+    if (widget.menu.onTap != null) {
       widget.menu.onTap!();
+    }
+
+    if (widget.menu.hasChildren) {
+      showSubMenu(widget.menu);
     }
   }
 
@@ -165,14 +158,14 @@ class _MenuWidgetState extends State<_MenuWidget> {
         Widget buildItemWidget(PlutoMenuItem item) {
           Widget menuItemWidget = _ItemWidget(
             menu: item,
-            iconScale: widget.iconScale,
-            unselectedColor: widget.unselectedColor,
-            activatedColor: widget.activatedColor,
-            indicatorColor: widget.indicatorColor,
-            menuIconColor: widget.menuIconColor,
-            moreIconColor: widget.moreIconColor,
-            menuIconSize: widget.menuIconSize,
-            textStyle: widget.textStyle,
+            iconScale: widget.style.iconScale,
+            unselectedColor: widget.style.unselectedColor,
+            activatedColor: widget.style.activatedColor,
+            indicatorColor: widget.style.indicatorColor,
+            menuIconColor: widget.style.iconColor,
+            moreIconColor: widget.style.moreIconColor,
+            menuIconSize: widget.style.iconSize,
+            textStyle: widget.style.textStyle,
           );
 
           if (item.type.isDivider) return menuItemWidget;
@@ -187,7 +180,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
           menuItemWidget = TextButton(
             onPressed: item.onTap,
             style: TextButton.styleFrom(
-              textStyle: widget.textStyle,
+              textStyle: widget.style.textStyle,
               shape: const RoundedRectangleBorder(
                 borderRadius: BorderRadius.zero,
               ),
@@ -290,14 +283,14 @@ class _MenuWidgetState extends State<_MenuWidget> {
       items: items.map((menu) {
         Widget menuItem = _ItemWidget(
           menu: menu,
-          iconScale: widget.iconScale,
-          unselectedColor: widget.unselectedColor,
-          activatedColor: widget.activatedColor,
-          indicatorColor: widget.indicatorColor,
-          menuIconColor: widget.menuIconColor,
-          moreIconColor: widget.moreIconColor,
-          menuIconSize: widget.menuIconSize,
-          textStyle: widget.textStyle,
+          iconScale: widget.style.iconScale,
+          unselectedColor: widget.style.unselectedColor,
+          activatedColor: widget.style.activatedColor,
+          indicatorColor: widget.style.indicatorColor,
+          menuIconColor: widget.style.iconColor,
+          moreIconColor: widget.style.moreIconColor,
+          menuIconSize: widget.style.iconSize,
+          textStyle: widget.style.textStyle,
         );
 
         double height = kMinInteractiveDimension;
@@ -364,10 +357,31 @@ class _MenuWidgetState extends State<_MenuWidget> {
     });
   }
 
+  void _setSelectedMenuKey() {
+    if (!enabledSelectedTopMenu) return;
+
+    bool? resolved = true;
+
+    if (widget.style.selectedTopMenuResolver != null) {
+      resolved = widget.style.selectedTopMenuResolver!(
+        widget.menu,
+        widget.selectedMenuKey == null
+            ? null
+            : widget.menu.key == widget.selectedMenuKey,
+      );
+    }
+
+    if (resolved == false) return;
+
+    widget.setSelectedMenuKey!(resolved == null ? null : widget.menu.key);
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget menuWidget = InkWell(
       onTap: () async {
+        _setSelectedMenuKey();
+
         openMenu(widget.menu);
       },
       child: Row(
@@ -376,12 +390,12 @@ class _MenuWidgetState extends State<_MenuWidget> {
           if (widget.menu.icon != null) ...[
             Icon(
               widget.menu.icon,
-              color: widget.menuIconColor,
-              size: widget.menuIconSize,
+              color: iconColor,
+              size: widget.style.iconSize,
             ),
             SizedBox(width: 5),
           ],
-          Text(widget.menu.title, style: widget.textStyle),
+          Text(widget.menu.title, style: textStyle),
         ],
       ),
     );
@@ -409,7 +423,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
     return SizedBox(
       height: widget.height,
       child: Padding(
-        padding: widget.padding,
+        padding: widget.style.padding,
         child: menuWidget,
       ),
     );
