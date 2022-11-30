@@ -1,6 +1,17 @@
 part of pluto_menu_bar;
 
 class PlutoMenuItem {
+  /// {@template pluto_menu_item_id}
+  /// Set a unique ID for the menu widget.
+  ///
+  /// Prevents [key] from being changed when [PlutoMenuItem] is created in the [build] method.
+  ///
+  /// When [PlutoMenuItem] is created in [State.initState], etc.,
+  /// there is no need to set [id] because [key] does not change
+  /// even if [build] is called multiple times.
+  /// {@endtemplate}
+  Object? id;
+
   /// Menu title
   final String title;
 
@@ -16,18 +27,24 @@ class PlutoMenuItem {
 
   /// Button type menu item.
   PlutoMenuItem({
+    /// {@macro pluto_menu_item_id}
+    this.id,
     required this.title,
     this.icon,
     this.enable = true,
     this.onTap,
     this.children,
-  })  : _key = GlobalKey(),
+  })  : _key = id == null ? GlobalKey() : GlobalObjectKey(id),
         _isBack = false {
     _setParent();
   }
 
   /// A menu item of type checkbox.
+  ///
+  /// [id]
+  /// {@macro pluto_menu_item_id}
   factory PlutoMenuItem.checkbox({
+    Object? id,
     required String title,
     IconData? icon,
     bool enable = false,
@@ -37,6 +54,7 @@ class PlutoMenuItem {
     bool? initialCheckValue,
   }) {
     return PlutoMenuItemCheckbox(
+      id: id,
       title: title,
       icon: icon,
       enable: enable,
@@ -48,7 +66,11 @@ class PlutoMenuItem {
   }
 
   /// A menu item of type radio button.
+  ///
+  /// [id]
+  /// {@macro pluto_menu_item_id}
   factory PlutoMenuItem.radio({
+    Object? id,
     required String title,
     IconData? icon,
     bool enable = false,
@@ -59,6 +81,7 @@ class PlutoMenuItem {
     Object? initialRadioValue,
   }) {
     return PlutoMenuItemRadio(
+      id: id,
       title: title,
       icon: icon,
       enable: enable,
@@ -71,12 +94,17 @@ class PlutoMenuItem {
   }
 
   /// A menu item of type Widget.
+  ///
+  /// [id]
+  /// {@macro pluto_menu_item_id}
   factory PlutoMenuItem.widget({
+    Object? id,
     required Widget widget,
     bool enable = false,
     void Function()? onTap,
   }) {
     return PlutoMenuItemWidget(
+      id: id,
       widget: widget,
       enable: enable,
       onTap: onTap,
@@ -151,6 +179,7 @@ class PlutoMenuItem {
 
 class PlutoMenuItemCheckbox extends PlutoMenuItem {
   PlutoMenuItemCheckbox({
+    super.id,
     required super.title,
     super.icon,
     super.enable = true,
@@ -169,6 +198,7 @@ class PlutoMenuItemCheckbox extends PlutoMenuItem {
 
 class PlutoMenuItemRadio extends PlutoMenuItem {
   PlutoMenuItemRadio({
+    super.id,
     required super.title,
     super.icon,
     super.enable = true,
@@ -192,6 +222,7 @@ class PlutoMenuItemRadio extends PlutoMenuItem {
 
 class PlutoMenuItemWidget extends PlutoMenuItem {
   PlutoMenuItemWidget({
+    super.id,
     required this.widget,
     super.enable = false,
     super.onTap,

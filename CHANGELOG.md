@@ -1,3 +1,22 @@
+## [3.0.0] - 2022. 11. 30
+
+* Add selected top menu.
+* Modify menu item style.  
+  Properties related to menu item styles have been moved to the itemStyle property.      
+  ```dart
+  PlutoMenuBar(
+    backgroundColor: Colors.deepOrange,
+    itemStyle: const PlutoMenuItemStyle(
+      activatedColor: Colors.white,
+      indicatorColor: Colors.deepOrange,
+      textStyle: TextStyle(color: Colors.white),
+      iconColor: Colors.white,
+      moreIconColor: Colors.white,
+    ),
+    menus: orangeTapMenus,
+  ),
+  ```
+
 ## [2.0.2] - 2022. 11. 25
 
 * Add PlutoMenuItemWidget.  
