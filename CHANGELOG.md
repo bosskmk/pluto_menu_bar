@@ -1,3 +1,7 @@
+## [3.0.1] - 2023. 1. 26
+
+* Updated for flutter 3.7 version.
+
 ## [3.0.0] - 2022. 11. 30
 
 * Add selected top menu.

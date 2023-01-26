@@ -105,7 +105,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
     if (!menu._hasContext) return;
 
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
 
     const double itemMinWidth = 150.0;
     const double itemMinHeight = 43.0;
@@ -244,7 +244,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
       },
     );
 
-    Overlay.of(context)!.insert(_popups[menu._key.toString()]!);
+    Overlay.of(context).insert(_popups[menu._key.toString()]!);
   }
 
   void _showTappedPopupMenu(
@@ -267,7 +267,7 @@ class _MenuWidgetState extends State<_MenuWidget> {
     }
 
     final RenderBox overlay =
-        Overlay.of(context)!.context.findRenderObject() as RenderBox;
+        Overlay.of(context).context.findRenderObject() as RenderBox;
 
     final Offset position =
         widget.menu._position + Offset(0, widget.height - 1);
