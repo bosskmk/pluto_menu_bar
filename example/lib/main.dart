@@ -42,6 +42,8 @@ class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
 
   late final List<PlutoMenuItem> orangeTapMenus;
 
+  bool isRtl = false;
+
   @override
   void initState() {
     super.initState();
@@ -210,123 +212,143 @@ class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          const SizedBox(height: 30),
-          const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
-          const Text('Works normally in an environment with a mouse.'),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            mode: PlutoMenuBarMode.hover,
-            menus: whiteHoverMenus,
-          ),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            mode: PlutoMenuBarMode.hover,
-            backgroundColor: Colors.deepOrange,
-            itemStyle: const PlutoMenuItemStyle(
-              activatedColor: Colors.white,
-              indicatorColor: Colors.deepOrange,
-              textStyle: TextStyle(color: Colors.white),
-              iconColor: Colors.white,
-              moreIconColor: Colors.white,
+    return Directionality(
+      textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 30),
+
+            const Text('Hover-open Menu', style: TextStyle(fontSize: 30)),
+            const Text('Works normally in an environment with a mouse.'),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Checkbox(
+                    value: isRtl,
+                    onChanged: (val) {
+                      setState(() {
+                        isRtl = val == true;
+                      });
+                    },
+                    checkColor: Colors.white),
+                const SizedBox(width: 10),
+                const Text('Right to left Direction'),
+              ],
             ),
-            menus: orangeHoverMenus,
-          ),
-          const SizedBox(height: 30),
-          const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            mode: PlutoMenuBarMode.tap,
-            menus: whiteTapMenus,
-          ),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            backgroundColor: Colors.deepOrange,
-            itemStyle: const PlutoMenuItemStyle(
-              activatedColor: Colors.white,
-              indicatorColor: Colors.deepOrange,
-              textStyle: TextStyle(color: Colors.white),
-              iconColor: Colors.white,
-              moreIconColor: Colors.white,
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              mode: PlutoMenuBarMode.hover,
+              menus: whiteHoverMenus,
             ),
-            menus: orangeTapMenus,
-          ),
-          const SizedBox(height: 30),
-          const Text('Selected top menu', style: TextStyle(fontSize: 30)),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            mode: PlutoMenuBarMode.tap,
-            itemStyle: const PlutoMenuItemStyle(
-              enableSelectedTopMenu: true,
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              mode: PlutoMenuBarMode.hover,
+              backgroundColor: Colors.deepOrange,
+              itemStyle: const PlutoMenuItemStyle(
+                activatedColor: Colors.white,
+                indicatorColor: Colors.deepOrange,
+                textStyle: TextStyle(color: Colors.white),
+                iconColor: Colors.white,
+                moreIconColor: Colors.white,
+              ),
+              menus: orangeHoverMenus,
             ),
-            menus: [
-              PlutoMenuItem(
-                title: 'Select1',
-                id: 'Select1',
-                onTap: () => message(context, 'Select1'),
-              ),
-              PlutoMenuItem(
-                title: 'Select2',
-                id: 'Select2',
-                onTap: () => message(context, 'Select2'),
-              ),
-              PlutoMenuItem(
-                title: 'Select3',
-                id: 'Select3',
-                onTap: () => message(context, 'Select3'),
-              ),
-              PlutoMenuItem(
-                title: 'Select4',
-                id: 'Select4',
-                onTap: () => message(context, 'Select4'),
-              ),
-              PlutoMenuItem(
-                title: 'Select5',
-                id: 'Select5',
-                onTap: () => message(context, 'Select5'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 30),
-          const Text('Toggled top menu', style: TextStyle(fontSize: 30)),
-          const SizedBox(height: 30),
-          PlutoMenuBar(
-            mode: PlutoMenuBarMode.tap,
-            itemStyle: PlutoMenuItemStyle(
-              enableSelectedTopMenu: true,
-              selectedTopMenuResolver: (menu, enabled) {
-                final description = enabled == true ? 'disabled' : 'enabled';
-                message(context, '${menu.title} $description');
-                return enabled == true ? null : true;
-              },
+            const SizedBox(height: 30),
+            const Text('Tap-open Menu', style: TextStyle(fontSize: 30)),
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              mode: PlutoMenuBarMode.tap,
+              menus: whiteTapMenus,
             ),
-            menus: [
-              PlutoMenuItem(
-                title: 'Toggle1',
-                id: 'Toggle1',
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              backgroundColor: Colors.deepOrange,
+              itemStyle: const PlutoMenuItemStyle(
+                activatedColor: Colors.white,
+                indicatorColor: Colors.deepOrange,
+                textStyle: TextStyle(color: Colors.white),
+                iconColor: Colors.white,
+                moreIconColor: Colors.white,
               ),
-              PlutoMenuItem(
-                title: 'Toggle2',
-                id: 'Toggle2',
+              menus: orangeTapMenus,
+            ),
+            const SizedBox(height: 30),
+            const Text('Selected top menu', style: TextStyle(fontSize: 30)),
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              mode: PlutoMenuBarMode.tap,
+              itemStyle: const PlutoMenuItemStyle(
+                enableSelectedTopMenu: true,
               ),
-              PlutoMenuItem(
-                title: 'Toggle3',
-                id: 'Toggle3',
+              menus: [
+                PlutoMenuItem(
+                  title: 'Select1',
+                  id: 'Select1',
+                  onTap: () => message(context, 'Select1'),
+                ),
+                PlutoMenuItem(
+                  title: 'Select2',
+                  id: 'Select2',
+                  onTap: () => message(context, 'Select2'),
+                ),
+                PlutoMenuItem(
+                  title: 'Select3',
+                  id: 'Select3',
+                  onTap: () => message(context, 'Select3'),
+                ),
+                PlutoMenuItem(
+                  title: 'Select4',
+                  id: 'Select4',
+                  onTap: () => message(context, 'Select4'),
+                ),
+                PlutoMenuItem(
+                  title: 'Select5',
+                  id: 'Select5',
+                  onTap: () => message(context, 'Select5'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 30),
+            const Text('Toggled top menu', style: TextStyle(fontSize: 30)),
+            const SizedBox(height: 30),
+            PlutoMenuBar(
+              mode: PlutoMenuBarMode.tap,
+              itemStyle: PlutoMenuItemStyle(
+                enableSelectedTopMenu: true,
+                selectedTopMenuResolver: (menu, enabled) {
+                  final description = enabled == true ? 'disabled' : 'enabled';
+                  message(context, '${menu.title} $description');
+                  return enabled == true ? null : true;
+                },
               ),
-              PlutoMenuItem(
-                title: 'Toggle4',
-                id: 'Toggle4',
-              ),
-              PlutoMenuItem(
-                title: 'Toggle5',
-                id: 'Toggle5',
-              ),
-            ],
-          ),
-          const SizedBox(height: 50),
-        ],
+              menus: [
+                PlutoMenuItem(
+                  title: 'Toggle1',
+                  id: 'Toggle1',
+                ),
+                PlutoMenuItem(
+                  title: 'Toggle2',
+                  id: 'Toggle2',
+                ),
+                PlutoMenuItem(
+                  title: 'Toggle3',
+                  id: 'Toggle3',
+                ),
+                PlutoMenuItem(
+                  title: 'Toggle4',
+                  id: 'Toggle4',
+                ),
+                PlutoMenuItem(
+                  title: 'Toggle5',
+                  id: 'Toggle5',
+                ),
+              ],
+            ),
+            const SizedBox(height: 50),
+          ],
+        ),
       ),
     );
   }
