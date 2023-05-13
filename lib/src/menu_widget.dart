@@ -115,7 +115,9 @@ class _MenuWidgetState extends State<_MenuWidget> {
     final Offset positionOffset =
         rootMenu ? Offset(0, widget.height) : Offset(menuSize.width - 10, 10);
 
-    Offset position = menuPosition + positionOffset;
+    final bool isRtl = Directionality.of(context).name == 'rtl';
+
+    Offset position = (isRtl ? Offset(overlay.size.width -  menuSize.width - menuPosition.dx, menuPosition.dy) : menuPosition) + positionOffset;
     double? top = position.dy;
     double? left = position.dx;
     double? right;
@@ -210,29 +212,32 @@ class _MenuWidgetState extends State<_MenuWidget> {
 
         final menuItemWidgets = menuItems.map(buildItemWidget).toList();
 
-        return Positioned(
-          top: top,
-          left: left,
-          right: right,
-          bottom: bottom,
-          child: Material(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: min(overlay.size.width, itemMinWidth),
-                maxWidth: overlay.size.width,
-                maxHeight: overlay.size.height - (top ?? 0),
-              ),
-              child: PhysicalModel(
-                color: widget.backgroundColor,
-                elevation: 2.0,
-                child: MouseRegion(
-                  onHover: onHover,
-                  onExit: onExit,
-                  child: IntrinsicWidth(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: menuItemWidgets,
+        return Directionality(
+          textDirection: isRtl ? TextDirection.rtl : TextDirection.ltr,
+          child: PositionedDirectional(
+            top: top,
+            start: left,
+            end: right,
+            bottom: bottom,
+            child: Material(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minWidth: min(overlay.size.width, itemMinWidth),
+                  maxWidth: overlay.size.width,
+                  maxHeight: overlay.size.height - (top ?? 0),
+                ),
+                child: PhysicalModel(
+                  color: widget.backgroundColor,
+                  elevation: 2.0,
+                  child: MouseRegion(
+                    onHover: onHover,
+                    onExit: onExit,
+                    child: IntrinsicWidth(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: menuItemWidgets,
+                        ),
                       ),
                     ),
                   ),
