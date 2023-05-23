@@ -17,6 +17,8 @@ class _MenuWidget extends StatefulWidget {
 
   final GlobalKey<State<StatefulWidget>>? selectedMenuKey;
 
+  final Axis rootDirection;
+
   final void Function(GlobalKey<State<StatefulWidget>>? key)?
       setSelectedMenuKey;
 
@@ -28,6 +30,7 @@ class _MenuWidget extends StatefulWidget {
     required this.backgroundColor,
     required this.style,
     required this.mode,
+    required this.rootDirection,
     this.selectedMenuKey,
     this.setSelectedMenuKey,
   }) : super(key: menu._key);
@@ -42,6 +45,8 @@ class _MenuWidgetState extends State<_MenuWidget> {
   SplayTreeMap<String, OverlayEntry> _popups = SplayTreeMap();
 
   Set<String> _hoveredPopupKey = {};
+
+  late double rootWidth = widget.menu._size.width;
 
   bool get enabledSelectedTopMenu => widget.style.enableSelectedTopMenu;
 
@@ -112,8 +117,15 @@ class _MenuWidgetState extends State<_MenuWidget> {
     final Offset menuPosition = menu._position - Offset(0, 1);
     final Size menuSize = menu._size;
     final bool rootMenu = menu._parent == null;
-    final Offset positionOffset =
-        rootMenu ? Offset(0, widget.height) : Offset(menuSize.width - 10, 10);
+    final Offset positionOffset;
+    if (widget.rootDirection == Axis.vertical) {
+      positionOffset = rootMenu
+          ? Offset(menuSize.width - 10, 10)
+          : Offset(menuSize.width - 10, 10);
+    } else {
+      positionOffset =
+          rootMenu ? Offset(0, widget.height) : Offset(menuSize.width - 10, 10);
+    }
 
     Offset position = menuPosition + positionOffset;
     double? top = position.dy;
@@ -269,8 +281,9 @@ class _MenuWidgetState extends State<_MenuWidget> {
     final RenderBox overlay =
         Overlay.of(context).context.findRenderObject() as RenderBox;
 
-    final Offset position =
-        widget.menu._position + Offset(0, widget.height - 1);
+    final Offset position = widget.rootDirection == Axis.horizontal
+        ? widget.menu._position + Offset(0, widget.height - 1)
+        : widget.menu._position + Offset(rootWidth - 1, 0);
 
     showMenu(
       context: context,

@@ -41,6 +41,12 @@ class PlutoMenuBar extends StatefulWidget {
   /// [PlutoMenuBarMode.hover] Opens a submenu by hovering the mouse.
   final PlutoMenuBarMode mode;
 
+  /// The direction of menu display. (default. Axis.horizontal)
+  ///
+  /// [Axis.horizontal] The menus display horizontally.
+  /// [Axis.vertical] The menus display vertically.
+  final Axis direction;
+
   PlutoMenuBar({
     required this.menus,
     this.goBackButtonText = 'Go back',
@@ -50,6 +56,7 @@ class PlutoMenuBar extends StatefulWidget {
     this.borderColor = Colors.black12,
     this.itemStyle = const PlutoMenuItemStyle(),
     this.mode = PlutoMenuBarMode.tap,
+    this.direction = Axis.horizontal,
   }) : assert(menus.length > 0);
 
   @override
@@ -97,7 +104,9 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
       builder: (ctx, size) {
         return SizedBox(
           width: size.maxWidth,
-          height: widget.height,
+          height: widget.direction == Axis.horizontal
+              ? widget.height
+              : size.maxWidth,
           child: DecoratedBox(
             decoration: BoxDecoration(
               color: widget.backgroundColor,
@@ -114,7 +123,7 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                 },
               ),
               child: ListView.builder(
-                scrollDirection: Axis.horizontal,
+                scrollDirection: widget.direction,
                 itemCount: widget.menus.length,
                 itemBuilder: (_, index) {
                   return _MenuWidget(
@@ -125,6 +134,7 @@ class _PlutoMenuBarState extends State<PlutoMenuBar> {
                     backgroundColor: widget.backgroundColor,
                     style: widget.itemStyle,
                     mode: widget.mode,
+                    rootDirection: widget.direction,
                     selectedMenuKey: _selectedMenuKey,
                     setSelectedMenuKey: _setSelectedMenuKey,
                   );
@@ -222,5 +232,6 @@ enum PlutoMenuBarMode {
   tap;
 
   bool get isHover => this == PlutoMenuBarMode.hover;
+
   bool get isTap => this == PlutoMenuBarMode.tap;
 }

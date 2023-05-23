@@ -42,6 +42,10 @@ class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
 
   late final List<PlutoMenuItem> orangeTapMenus;
 
+  late final List<PlutoMenuItem> whiteVerticalHoverMenus;
+
+  late final List<PlutoMenuItem> whiteVerticalTapMenus;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +54,8 @@ class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
     orangeHoverMenus = _makeMenus(context);
     whiteTapMenus = _makeMenus(context);
     orangeTapMenus = _makeMenus(context);
+    whiteVerticalHoverMenus = _makeMenus(context);
+    whiteVerticalTapMenus = _makeMenus(context);
   }
 
   void message(context, String text) {
@@ -322,6 +328,44 @@ class _PlutoMenuBarDemoState extends State<PlutoMenuBarDemo> {
               PlutoMenuItem(
                 title: 'Toggle5',
                 id: 'Toggle5',
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  const SizedBox(height: 30),
+                  const Text('Vertical Hover-open Menu', style: TextStyle(fontSize: 30)),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: PlutoMenuBar(
+                      mode: PlutoMenuBarMode.hover,
+                      menus: whiteVerticalHoverMenus,
+                      direction: Axis.vertical,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 200),
+              Column(
+                children: [
+                  const SizedBox(height: 30),
+                  const Text('Vertical Tap-open Menu', style: TextStyle(fontSize: 30)),
+                  const SizedBox(height: 30),
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: PlutoMenuBar(
+                      mode: PlutoMenuBarMode.tap,
+                      menus: whiteVerticalTapMenus,
+                      direction: Axis.vertical,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
